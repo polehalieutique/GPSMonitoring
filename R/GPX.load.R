@@ -2,12 +2,7 @@
 #' @param files Name of a gpx file to be loaded
 #' @param gpx_rep Name of the directory that contains all gps files that should be loaded
 #' @examples
-#'
-#'
-#' GPX.load(gpx_rep='data/gpx')
-#'
-#'
-#'
+#' #GPX.load(gpx_rep='data/gpx')
 #' @export
 
 GPX.load<- function (file=NULL,gpx_rep=NULL){

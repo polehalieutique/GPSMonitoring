@@ -1,1 +1,2 @@
 exportPattern("^[[:alpha:]]+")
+importFrom("stats", "dist", "dt", "filter", "glm", "predict", "step","time")

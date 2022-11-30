@@ -1,18 +1,18 @@
 #' Propose a user interface to identified portion of the tracks that could be active one.
 #' @param traj A subset of global trajectory dataset identified by one no_trajet
 #' @examples
-#' new_trajet29<-silicoTraj(filter(R2,no_trajet==29))
+#' #new_trajet29<-silicoTraj(filter(R2,no_trajet==29))
 #' @export
 #'
 
 silicoTraj<-function(traj,mode='map') {
 
-  require(shiny)
+#  require(shiny)
 
-  library(sf)
-  library(dplyr)
-  library(ggplot2)
-  library(kableExtra)
+#  library(sf)
+#  library(tidyr)
+#  library(ggplot2)
+#  library(kableExtra)
   #load('/home/jerome/PESCAOS/Rpackages/GPSMonitoring/app/Traj_obs.Rdata')
 
   inputinit<-traj
