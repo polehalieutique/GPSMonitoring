@@ -20,8 +20,8 @@ Depends:
     ggplot2,
     dplyr,
     tidyr,
-    adehabitatLT
-    sf
+    adehabitatLT,
+    sf,
     ggpubr,
     R (>= 2.10)
 VignetteBuilder: knitr

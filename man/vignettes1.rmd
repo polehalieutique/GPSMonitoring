@@ -322,14 +322,14 @@ Obvisouly the Observed Fishing activities does not seem to be really efficient t
 
 #First i can identifiy trajectory that seems to be observable for the given gear
 
-R2 %>% filter(code_engin==engin_encours) %>% 
+R2 %>% filter(code_engin==engin_encours & no_trajet==18) %>% 
   ggplot()+geom_sf(aes(color=as.factor(no_trajet)))+facet_wrap(~no_trajet)
 
 #I create the new column and set values to Unknown, 
 R2$activity_plus<-'UK'
 
 #I will review a selction of trajectories
-liste_trajet_silico<-c(1,11,6,7,20)
+liste_trajet_silico<-c(1,18,20)
 Rtmp<-silicoTraj(filter(R2,no_trajet==i),mode='speed')
 for (i in liste_trajet_silico)
 {
@@ -349,6 +349,7 @@ With these new set of data i try to improve the model
 
 ```{r}
 traj<-filter(R2,code_engin==engin_encours)
+observation<-'activity_plus'
 traj %>% filter(!!as.name(observation)=='active') %>% dplyr::distinct(no_trajet)
 
 
@@ -367,6 +368,9 @@ p2<-ggplot(filter(R2,code_engin==engin_encours))+geom_sf(aes(color=activity),alp
 ggarrange(p1,p2,ncol=1)
 
 
+ggplot(R2.pred.plus)+geom_point(aes(x=id,y=(predict.glm)))+
+  facet_wrap(~no_trajet,scales='free')
+
 ```
 
 
@@ -374,32 +378,23 @@ ggarrange(p1,p2,ncol=1)
 ### I can add additional co variable 
 ```{r}
 
-add.nb.point <-function (traj,r=2000)
-{
-
-units(r)<-'m'
-test<-(as.matrix((st_distance(traj,traj,by_element = FALSE)))<r)
-mat_num <- matrix(as.numeric(test),    # Convert to numeric matrix
-                  ncol = ncol(test))
-
-nb_points<-rowSums(mat_num)
+R2test_retour<-all.add.nb.point(R2,r=2000,temp_windows=20)
 
 
-return(data.frame(no_trajet=unique(traj$no_trajet),id=traj$id,nb_points=nb_points))
-}
+ggplot(filter(R2test_retour,no_trajet==20))+geom_sf(aes(color=nb_points))
 
-R2test_retour<-R2 %>% inner_join(do.call(rbind,lapply(split(R2, R2$no_trajet),add.nb.point,r=2000)))
-
-
-ggplot(filter(R2test_retour,no_trajet==29))+geom_sf(aes(color=nb_points))
-
-ggplot(filter(R2test_retour,no_trajet==160))+geom_point(aes(x=id,y=nb_points,color=activity_plus))
+ggplot(filter(R2test_retour,no_trajet==20))+geom_point(aes(x=id,y=nb_points,color=activity_plus))
 
 
 ```
+
+
+
 ```{r}
 
 gear.glm.plus.nb<-model.traj.glm(filter(R2test_retour,code_engin==engin_encours),observation="activity_plus",form= "dist+R2n+rel.angle+nb_points")
+
+summary(gear.glm.plus)
 
 summary(gear.glm.plus.nb)
 plot(gear.glm.plus.nb)

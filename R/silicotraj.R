@@ -53,7 +53,7 @@ silicoTraj<-function(traj,mode='map') {
                       mainPanel(
 
                         plotOutput("plot2"),
-                        tableOutput("data")
+                        #tableOutput("data")
                       )
                     )
       ),
@@ -64,11 +64,25 @@ silicoTraj<-function(traj,mode='map') {
           input$do
           input$undo
           input$unvalidate
+          retour<-brushedPoints(inputtmp %>% st_drop_geometry(), input$plot_brush)
+          if (activity_plus=='active') {
+
+            retour$activity_plus<-activity_plus
+            inputtmp[inputtmp$id %in% retour$id,]$activity_plus<<-activity_plus
+
+          }
+          if (activity_plus=='UK') {
+
+            retour$activity_plus<-activity_plus
+            inputtmp[inputtmp$id %in% retour$id,]$activity_plus<<-activity_plus
+
+          }
+
           ggplot(inputtmp %>% st_drop_geometry(), aes(x=id, y=dist,color=activity_plus)) + geom_point()
         })
 
         output$plot2 <- renderPlot({
-
+          Sys.sleep(2)
           input$do
           input$undo
           input$unvalidate
@@ -83,6 +97,19 @@ silicoTraj<-function(traj,mode='map') {
 
           xrange<-min(xrange,xrangeinit)
           yrange<-min(yrange,yrangeinit)
+
+          if (activity_plus=='active') {
+
+            retour$activity_plus<-activity_plus
+            inputtmp[inputtmp$id %in% retour$id,]$activity_plus<<-activity_plus
+
+          }
+          if (activity_plus=='UK') {
+
+            retour$activity_plus<-activity_plus
+            inputtmp[inputtmp$id %in% retour$id,]$activity_plus<<-activity_plus
+
+          }
 
           ggplot(inputtmp)+geom_sf(aes(color=activity_plus),size=1)+geom_sf(data=R2_selectionne,shape=1,size=5)+
             xlim(bb[[1]]-xrange, bb[[3]]+xrange)+
@@ -99,15 +126,16 @@ silicoTraj<-function(traj,mode='map') {
 
             retour$activity_plus<-activity_plus
             inputtmp[inputtmp$id %in% retour$id,]$activity_plus<<-activity_plus
+            activity_plus<<-''
 
           }
           if (activity_plus=='UK') {
 
             retour$activity_plus<-activity_plus
             inputtmp[inputtmp$id %in% retour$id,]$activity_plus<<-activity_plus
-
+            activity_plus<<-''
           }
-          retour
+          #retour
         })
 
 
@@ -156,7 +184,7 @@ silicoTraj<-function(traj,mode='map') {
                           actionButton("unvalidate", "UnValidate points"),
                           actionButton("undo", "Reset to initial values"),
                           actionButton("quit", "Quit"),br(),
-                          tableOutput("data")
+                         # tableOutput("data")
 
                       )
         ),
@@ -191,7 +219,7 @@ silicoTraj<-function(traj,mode='map') {
 
             }
 
-            retour
+            #retour
           })
 
 
