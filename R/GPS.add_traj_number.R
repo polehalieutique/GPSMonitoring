@@ -5,9 +5,8 @@
 #' @examples
 #'
 #' @export
-#'
 GPS.add_traj_number<- function (GPS.data,limit){
-  library(sqldf)
+
   if (is.null(limit)) {print('limit parameter is request in order to use the function')}
   if (!is.null(limit)) {
 #La faire trajet par trajet
