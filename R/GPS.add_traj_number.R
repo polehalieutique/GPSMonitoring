@@ -17,7 +17,7 @@ GPS.add_traj_number<- function (GPS.data,limit){
       for(track in liste_trajet$track_fid)
   {
 print(track)
-  GPS.data.tmp<-GPS.data %>% filter(track_fid==track)
+  GPS.data.tmp<-GPS.data %>% dplyr::filter(track_fid==track)
     trajet_tmp<-GPS.data.tmp %>% dplyr::select(track_fid,track_seg_point_id,time) %>%
       dplyr::arrange(track_fid,time) %>%
       dplyr::mutate(points_suivant=lead(track_seg_point_id),traj_suivant=lead(track_fid),duree=as.numeric(lead(time)-time)) %>%
