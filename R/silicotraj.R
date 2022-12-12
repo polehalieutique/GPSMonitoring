@@ -87,7 +87,7 @@ silicoTraj<-function(traj,mode='map') {
           input$undo
           input$unvalidate
           retour<-brushedPoints(inputtmp %>% st_drop_geometry(), input$plot_brush)
-          R2_selectionne<-inputtmp %>% inner_join(retour)
+          R2_selectionne<-inputtmp %>% dplyr::inner_join(retour)
           bb<-st_bbox(R2_selectionne)
           bbinit<-st_bbox(inputinit)
           xrangeinit<-abs(bbinit[[1]]-bbinit[[3]])
@@ -224,7 +224,7 @@ silicoTraj<-function(traj,mode='map') {
 
 
           observeEvent(input$undo, {
-            inputtmp<<-inputinit%>% mutate(lon = sf::st_coordinates(.)[,1],
+            inputtmp<<-inputinit%>% dplyr::mutate(lon = sf::st_coordinates(.)[,1],
                                            lat = sf::st_coordinates(.)[,2])
           })
 
