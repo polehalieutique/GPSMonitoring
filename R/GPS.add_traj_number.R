@@ -25,7 +25,7 @@ print(track)
 
     first_ligne<-trajet_tmp[1,]
 
-    trajet_tmp %>%filter(traj_suivant!=track_fid |duree>limit) ->entraxes
+    trajet_tmp %>% dplyr::filter(traj_suivant!=track_fid |duree>limit) ->entraxes
     entraxes<-rbind(first_ligne,entraxes)
 
      entraxes %>%
