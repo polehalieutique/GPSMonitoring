@@ -5,9 +5,8 @@
 #'
 #' @export
 #'
-
 track_replace<-function(trajInit,new_track)
 {
   no_trajet_replace<-new_track$no_trajet[1]
-  return(trajInit %>% filter(no_trajet!=no_trajet_replace) %>% rbind(new_track))
+  return(trajInit %>% dplyr::filter(no_trajet!=no_trajet_replace) %>% rbind(new_track))
 }

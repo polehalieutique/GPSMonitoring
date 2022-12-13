@@ -9,17 +9,21 @@ silicoTraj<-function(traj,mode='map') {
 
 #  require(shiny)
 
-#  library(sf)
-#  library(tidyr)
-#  library(ggplot2)
-#  library(kableExtra)
-  #load('/home/jerome/PESCAOS/Rpackages/GPSMonitoring/app/Traj_obs.Rdata')
+  library(sf)
+  library(tidyr)
+  library(ggplot2)
+  library(kableExtra)
+  library(shiny)
+  library(leaflet)
 
-  inputinit<-traj
+    #load('/home/jerome/PESCAOS/Rpackages/GPSMonitoring/app/Traj_obs.Rdata')
+
+  inputinit<-st_drop_geometry(traj)
   inputtmp<-inputinit
-
+  colours <- c("active" = "green", "UK" = "red")
   activity_plus<-''
-
+x_range<-c(-999,-999)
+y_range<-c(-999,-999)
   if (mode=='speed')
     {
     runApp(
@@ -38,65 +42,77 @@ silicoTraj<-function(traj,mode='map') {
       /* Make text visible on inputs */
       .shiny-input-container {
         color: white;
-      }")),titlePanel("In silico observed fishing activities using speed"),
+      }")),titlePanel(paste("In silico observed fishing activities using speed for traj ",unique(traj$no_trajet),sep='')),
                     sidebarLayout(
                       sidebarPanel(
-                        uiOutput("ui_species"),
                         plotOutput("plot", brush = "plot_brush"),
                         actionButton("do", "Validate points"),
                         actionButton("unvalidate", "UnValidate points"),
-                        actionButton("undo", "Reset to initial values"),
+                        actionButton("carte", "Plot map"),
                         actionButton("quit", "Quit")
 
 
                       ),
                       mainPanel(
 
-                        plotOutput("plot2"),
+                       #plotOutput("plot2"),
+                       #br(),
+                       leafletOutput("endynamique")
+
                         #tableOutput("data")
                       )
                     )
       ),
       server=function(input,output,session) {
 
+        R2_selectionne <- reactive({
+          input$do
+          # Add a little noise to the cars data so the points move
+          retour<-brushedPoints(inputtmp, input$plot_brush)
+          inputtmp %>% dplyr::inner_join(retour)
+        })
+
+        R2_selectionne <- reactive({
+          input$unvalidate
+          # Add a little noise to the cars data so the points move
+          retour<-brushedPoints(inputtmp, input$plot_brush)
+          inputtmp %>% dplyr::inner_join(retour)
+        })
+
+
+
         output$plot <- renderPlot({
-          Sys.sleep(1)
+          #Sys.sleep(1)
+
           input$do
-          input$undo
           input$unvalidate
-          retour<-brushedPoints(inputtmp %>% st_drop_geometry(), input$plot_brush)
-          if (activity_plus=='active') {
+          retour<-brushedPoints(inputtmp , input$plot_brush)
+
+
+          if (activity_plus=='active' & dim(retour)[1]>0) {
 
             retour$activity_plus<-activity_plus
             inputtmp[inputtmp$id %in% retour$id,]$activity_plus<<-activity_plus
 
           }
-          if (activity_plus=='UK') {
+          if (activity_plus=='UK'  & dim(retour)[1]>0) {
 
             retour$activity_plus<-activity_plus
             inputtmp[inputtmp$id %in% retour$id,]$activity_plus<<-activity_plus
 
           }
 
-          ggplot(inputtmp %>% st_drop_geometry(), aes(x=id, y=dist,color=activity_plus)) + geom_point()
+          ggplot(inputtmp, aes(x=id, y=dist,color=activity_plus)) + geom_point()+
+            scale_color_manual(values = colours)
         })
 
-        output$plot2 <- renderPlot({
-          Sys.sleep(2)
-          input$do
-          input$undo
-          input$unvalidate
-          retour<-brushedPoints(inputtmp %>% st_drop_geometry(), input$plot_brush)
+        observeEvent(input$carte,{
+
+
+          retour<-brushedPoints(inputtmp, input$plot_brush)
+
           R2_selectionne<-inputtmp %>% dplyr::inner_join(retour)
-          bb<-st_bbox(R2_selectionne)
-          bbinit<-st_bbox(inputinit)
-          xrangeinit<-abs(bbinit[[1]]-bbinit[[3]])
-          yrangeinit<-abs(bbinit[[2]]-bbinit[[4]])
-          xrange<-abs(bb[[1]]-bb[[3]])/15
-          yrange<-abs(bb[[2]]-bb[[4]])/15
 
-          xrange<-min(xrange,xrangeinit)
-          yrange<-min(yrange,yrangeinit)
 
           if (activity_plus=='active') {
 
@@ -110,52 +126,36 @@ silicoTraj<-function(traj,mode='map') {
             inputtmp[inputtmp$id %in% retour$id,]$activity_plus<<-activity_plus
 
           }
+          #output$plot2 <- renderPlot({
+          #  ggplot(inputtmp)+geom_point(aes(x=longitude,y=latitude,color=activity_plus),size=1)+
+          #    scale_color_manual(values = colours)
 
-          ggplot(inputtmp)+geom_sf(aes(color=activity_plus),size=1)+geom_sf(data=R2_selectionne,shape=1,size=5)+
-            xlim(bb[[1]]-xrange, bb[[3]]+xrange)+
-            ylim(bb[[2]]-yrange, bb[[4]]+yrange)
-        })
+          #})
+          output$endynamique<-renderLeaflet({
+            traj %>% st_coordinates() %>% st_linestring() %>% st_zm(drop = T, what = "ZM")->ligne
+            pal <- colorFactor(c("green", "red"), domain = c("active", "UK"))
+            leaflet(inputtmp) %>%
+              addProviderTiles("Esri.WorldImagery")  %>%
+              addPolylines(data=ligne,weight = 1,col='orange') %>%
+              addCircleMarkers(~longitude,~latitude,radius=1,color=~pal(activity_plus),popup = ~paste0(id,'-',date))
+          })
 
-        output$data <- renderTable({
-
-          input$do
-          input$unvalidate
-          input$reset
-          retour<-brushedPoints(inputtmp %>% st_drop_geometry(), input$plot_brush)
-          if (activity_plus=='active') {
-
-            retour$activity_plus<-activity_plus
-            inputtmp[inputtmp$id %in% retour$id,]$activity_plus<<-activity_plus
-            activity_plus<<-''
-
-          }
-          if (activity_plus=='UK') {
-
-            retour$activity_plus<-activity_plus
-            inputtmp[inputtmp$id %in% retour$id,]$activity_plus<<-activity_plus
-            activity_plus<<-''
-          }
-          #retour
         })
 
 
-        observeEvent(input$undo, {
-          inputtmp<<-inputinit
-        })
 
         observeEvent(input$do, {
-          activity_plus <<- "active"
+          if(input$do > 0) {activity_plus <<- "active"}
         })
         observeEvent(input$unvalidate, {
-          activity_plus <<- "UK"
+          if(input$unvalidate > 0) {activity_plus <<- "UK"}
         })
 
         observeEvent(input$quit, {
           if(input$quit > 0){
-            stopApp(inputtmp)
+            stopApp(inputtmp %>% st_as_sf(coords = c("longitude", "latitude"), crs = 4326,remove=FALSE))
           }
         })
-
       }
     ))
   }else
@@ -176,13 +176,14 @@ silicoTraj<-function(traj,mode='map') {
       /* Make text visible on inputs */
       .shiny-input-container {
         color: white;
-      }")),titlePanel("In silico observed fishing activities using map"),br(),
+      }")),titlePanel(paste("In silico observed fishing activities using map ",unique(traj$no_trajet),sep='')),br(),
 
                         mainPanel(
                           plotOutput("plot", brush = "plot_brush"),br(),
                           actionButton("do", "Validate points"),
                           actionButton("unvalidate", "UnValidate points"),
-                          actionButton("undo", "Reset to initial values"),
+                          actionButton("zoom", "Zoom"),
+                          actionButton("unzoom", "UnZoom"),
                           actionButton("quit", "Quit"),br(),
                          # tableOutput("data")
 
@@ -191,53 +192,57 @@ silicoTraj<-function(traj,mode='map') {
         server=function(input,output,session) {
 
           output$plot <- renderPlot({
-            Sys.sleep(1)
             input$do
-            input$undo
             input$unvalidate
+            input$zoom
+            input$unzoom
 
-            ggplot(inputtmp %>% st_drop_geometry(), aes(x=longitude, y=latitude,color=activity_plus)) + geom_point()
-          })
+            g1<-ggplot(inputtmp, aes(x=longitude, y=latitude,color=activity_plus)) + geom_point()+
+                scale_color_manual(values = colours)
 
-
-
-          output$data <- renderTable({
-            paste("<BR/>nous sommes ici ",input$do)
-            input$unvalidate
-            input$undo
-            retour<-brushedPoints(inputtmp %>% st_drop_geometry(), input$plot_brush)
-            if (activity_plus=='active') {
-
-              retour$activity_plus<-activity_plus
-              inputtmp[inputtmp$id %in% retour$id,]$activity_plus<<-activity_plus
-
-            }
-            if (activity_plus=='UK') {
-
-              retour$activity_plus<-activity_plus
-              inputtmp[inputtmp$id %in% retour$id,]$activity_plus<<-activity_plus
+            if (x_range[1]==-999) {g1} else
+            {
+            g1+xlim(x_range)+ylim(y_range)
 
             }
 
-            #retour
+
+
           })
 
 
           observeEvent(input$undo, {
-            inputtmp<<-inputinit%>% dplyr::mutate(lon = sf::st_coordinates(.)[,1],
-                                           lat = sf::st_coordinates(.)[,2])
+            inputtmp<<-inputinit%>% dplyr::mutate(lon = longitude,
+                                           lat = latitude)
           })
 
           observeEvent(input$do, {
+
             activity_plus <<- "active"
+            retour<-brushedPoints(inputtmp , input$plot_brush)
+            inputtmp[inputtmp$id %in% retour$id,]$activity_plus<<-activity_plus
           })
           observeEvent(input$unvalidate, {
             activity_plus <<- "UK"
+            retour<-brushedPoints(inputtmp , input$plot_brush)
+
+            retour$activity_plus<-activity_plus
+            inputtmp[inputtmp$id %in% retour$id,]$activity_plus<<-activity_plus
+          })
+
+          observeEvent(input$zoom, {
+            retour<-brushedPoints(inputtmp , input$plot_brush)
+            x_range<<-c(min(retour$longitude),max(retour$longitude))
+            y_range<<-c(min(retour$latitude),max(retour$latitude))
+          })
+          observeEvent(input$unzoom, {
+            x_range<<-c(-999,-999)
+            y_range<<-c(-999,-999)
           })
 
           observeEvent(input$quit, {
             if(input$quit > 0){
-              stopApp(inputtmp)
+              stopApp(inputtmp %>% st_as_sf(coords = c("longitude", "latitude"), crs = 4326,remove=FALSE))
             }
           })
 
