@@ -9,8 +9,8 @@
 model.traj.glm<-function(traj,observation=NULL,form=NULL) {
 
   # on ne doit selecionner que les no_trajet avec observation
-  traj %>% filter(!!as.name(observation)=='active') %>% dplyr::distinct(no_trajet)->liste_traj.obser
-  traj %>% filter(no_trajet %in% liste_traj.obser$no_trajet) %>% mutate(observation2=as.numeric(!!as.name(observation)=='active')) ->traj2
+  traj %>% dplyr::filter(!!as.name(observation)=='active') %>% dplyr::distinct(no_trajet)->liste_traj.obser
+  traj %>% dplyr::filter(no_trajet %in% liste_traj.obser$no_trajet) %>% dplyr::mutate(observation2=as.numeric(!!as.name(observation)=='active')) ->traj2
 
 
   #if (is.null(formula)) {formula<- "traj2$observation2~traj2$dist+traj2$R2n+traj2$rel.angle"}
