@@ -1,4 +1,4 @@
-#' GLM model on the data
+#' Tool to draw more complex extent using
 #' @param traj A subset of global trajectory dataset identified by one no_trajet
 #' @param obervation  The name of the column used to store observed activity
 #' @param formula Default formula is observation~dist but users can specified his on model
