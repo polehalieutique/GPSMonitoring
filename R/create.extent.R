@@ -23,7 +23,7 @@ library(shiny)
 
     output$mymap <- renderLeaflet(
       leaflet() %>%
-        addProviderTiles("Esri.OceanBasemap",group = "Ocean Basemap") %>%
+        addProviderTiles("Esri.WorldImagery")  %>%
         addPolygons(data= gps.extent, color = "green") %>%
         addDrawToolbar(
           targetGroup='draw',
