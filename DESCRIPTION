@@ -25,6 +25,9 @@ Imports:
     sqldf,
     shiny,
     kableExtra,
+    htmlwidgets,
+    leaflet,
+    leaflet.extras,
     ggpubr,
 Depends: R (>= 3.5.0)
 VignetteBuilder: knitr
