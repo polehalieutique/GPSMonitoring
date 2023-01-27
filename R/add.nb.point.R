@@ -34,8 +34,9 @@ add.nb.point <-function (traj,r=2000,temp_windows=10)
     tidyr::pivot_wider(names_from =id.y,values_from=diff) %>% dplyr::select(-id.x)->temporal_window
 
   nb_points<-rowSums(dist.matrix.num*temporal_window)
+ret<-data.frame(no_trajet=unique(traj$no_trajet),id=traj$id,circle=nb_points)
 
-
-  return(data.frame(no_trajet=unique(traj$no_trajet),id=traj$id,nb_points=nb_points))
+names(ret)[3]<-paste("circle",r,sep='')
+  return(ret)
 }
 

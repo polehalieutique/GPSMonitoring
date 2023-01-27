@@ -19,16 +19,16 @@ R2.pred.plus %>% st_drop_geometry() %>% dplyr::filter(no_trajet %in% no_trajet_w
                 tn=case_when((!!as.symbol(col.activity)==1 & !!as.symbol(col.activity)!=as.numeric(predict.glm))~1,TRUE~0),
                 fn=case_when((!!as.symbol(col.activity)==0 & !!as.symbol(col.activity)!=as.numeric(predict.glm))~1,TRUE~0)
                 ) %>%
-  dplyr::select(fp,tp,tn,fn) %>% summarize(fp=sum(fp),tp=sum(tp),tn=sum(tn),fn=sum(fn)) %>%
-  mutate(indicator='quality',accuracy=(fn+tp)/(fn+tp+fn+fp),sensitivity=tp/(tp+fn),specificity=tn/(tn+fn))->qual.ind
+  dplyr::select(fp,tp,tn,fn) %>% dplyr::summarize(fp=sum(fp),tp=sum(tp),tn=sum(tn),fn=sum(fn)) %>%
+  dplyr::mutate(indicator='quality',accuracy=(fn+tp)/(fn+tp+fn+fp),sensitivity=tp/(tp+fn),specificity=tn/(tn+fn))->qual.ind
 qual.ind %>% dplyr::select(indicator,accuracy,sensitivity,specificity) %>% pivot_longer(!indicator,names_to='Ind_name') %>%
-  ggplot(aes(x=Ind_name,y=value))+  geom_bar(position="dodge", stat = "identity")->g1
+  ggplot(aes(x=Ind_name,y=value))+geom_bar(position="dodge", stat = "identity")->g1
 
   g1
 
         }else {print('No data to feed the function')}
   }
 
-#return(qual.ind)
+return(list(qual.ind,g1))
 
 }

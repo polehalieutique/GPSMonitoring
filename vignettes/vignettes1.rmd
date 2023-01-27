@@ -19,7 +19,7 @@ library(ggpubr)
 library(RPostgreSQL)
 library(tidyr)
 library(units)
-
+library(GPSMonitoring)
 
 ```
 
@@ -298,6 +298,8 @@ plot(gear.glm2)
 
 ```{r}
 
+
+
 R2.pred<-glm.predict(filter(R2,code_engin==engin_encours),gear.glm2,seuil=0.5)
 
 
@@ -319,7 +321,19 @@ Obvisouly the Observed Fishing activities does not seem to be really efficient t
 
 ### We can review observed fishing activities using visual interface: we define a new observation column : activity_plus
 
+Pour recharger à partir de là
 ```{r}
+load("~/PESCAOS/Rpackages/intermediaire.Rdata.RData")
+
+R.gps.all.cur_traj %>% tidyr::separate(filename,c('code_village','code_engin','code_pecheur'),remove=FALSE,sep='_') %>% 
+  mutate(code_pecheur=as.numeric(code_pecheur)) %>%  mutate(longitude = sf::st_coordinates(.)[,1],
+                                             latitude = sf::st_coordinates(.)[,2])->R2
+
+```
+
+```{r}
+
+
 
 #First i can identifiy trajectory that seems to be observable for the given gear
 
@@ -344,7 +358,6 @@ for (i in liste_trajet_silico)
   R2<-track_replace(R2,silicoTraj(filter(R2,no_trajet==i),mode='map'))
 }
 
-
 ```
 
 With these new set of data i try to improve the model 
@@ -365,7 +378,7 @@ R2.pred.plus<-glm.predict(filter(R2,code_engin==engin_encours),gear.glm.plus,seu
 
 p1<-ggplot(R2.pred.plus)+geom_sf(aes(color=as.factor(predict.glm)),alpha=0.45,lwd=1)+
     scale_fill_viridis_c(option = "plasma", trans = "sqrt")
-p2<-ggplot(filter(R2,code_engin==engin_encours))+geom_sf(aes(color=activity),alpha=0.45,lwd=1)+
+p2<-ggplot(filter(R2.pred.plus,code_engin==engin_encours))+geom_sf(aes(color=activity_plus),alpha=0.45,lwd=1)+
     scale_fill_viridis_c(option = "plasma", trans = "sqrt")
 ggarrange(p1,p2,ncol=1)
 
@@ -380,7 +393,7 @@ ggplot(R2.pred.plus)+geom_point(aes(x=id,y=(predict.glm)))+
 ### I can add additional co variable 
 ```{r}
 
-R2test_retour<-all.add.nb.point(R2,r=2000,temp_windows=20)
+R2test_retour<-all.add.nb.point(R2.pred.plus,r=2000,temp_windows=20)
 
 
 ggplot(filter(R2test_retour,no_trajet==20))+geom_sf(aes(color=nb_points))
@@ -412,6 +425,42 @@ ggarrange(p1,p2,ncol=1)
 
 
 ```
+
+## Random Forest prediction
+
+Random forest is another algorythm which is able to predict fishing activity using observed values. Methodology is describe in folowing article :
+
+[Estimating fishing effort in small-scale fisheries using GPS tracking data and random forests] (https://dx.doi.org/10.1016/j.ecolind.2020.107321)
+
+```{r}
+
+#On repart de là 
+
+head(R2.pred.plus)
+gear<-'FMC'
+R2.pred.plus %>% dplyr::filter(activity_plus=='active' & substr(code_engin,1,3)==gear) %>% distinct(no_trajet)->labelled_traj
+
+labelled_dta <- R2.pred.plus %>% dplyr::filter(no_trajet %in% labelled_traj$no_trajet)
+liste_trajet <- unique(labelled_dta$no_trajet)
+
+dta          <- R2.pred.plus %>% filter(substr(code_engin,1,3)==gear)
+
+colX    <- which(stringr::str_detect(colnames(labelled_dta) , 'speed|circle|conv'))
+formula_train <- paste('etat_agrege ~ ', paste(colnames(labelled_dta)[colX],  collapse = ' + ') )
+count_class <-  labelled_dta %>% dplyr::group_by(etat_agrege) %>% dplyr::summarise(count = n()) %>% dplyr::select(count) %>% unlist()
+weight_class <-  round(sum(count_class) / count_class,1)
+mod.RF    <- ranger(formula_train,
+                    data = labelled_dta, num.trees = 800, mtry = 6, class.weights = weight_class)
+predict_data   <- predict(mod.RF, data = dta)
+
+dta %>% dplyr::mutate(etat_predit = predict_data$predictions,Gear =gear,methode='RF')  -> res_FMC
+
+transfert <- res_FMC %>% dplyr::select(idpos, methode,etat_predit)
+
+
+```
+
+
 
 
 ```{r}
