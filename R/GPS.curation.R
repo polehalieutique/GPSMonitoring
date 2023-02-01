@@ -7,10 +7,17 @@
 #' @export
 GPS.curation<- function (GPS.data,extent=NULL,exclude=NULL){
 
-  if (!is.null(extent)) {GPS.data<-st_join(GPS.data,extent,join=st_within,left=FALSE) }
+inputdim<-dim(GPS.data[,1])[1]
+
+  if (!is.null(extent)) {GPS.data<-st_join(GPS.data,extent,join=st_intersects,left=FALSE,prepare=TRUE) }
   if (!is.null(exclude)) {
     GPS.data<-st_join(GPS.data,exclude,join=st_disjoint,left=FALSE)
 
-      }
-return(GPS.data)
+  }
+
+outputdim<-GPS.data %>% st_drop_geometry() %>% summarize(nb_lignes=n())
+print (paste("input number of position :",inputdim,sep=''))
+print (paste("output number of position :",outputdim$nb_lignes,sep=''))
+
+       return(GPS.data)
 }

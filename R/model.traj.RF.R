@@ -6,7 +6,6 @@
 #'  "gear.glm<-model.traj.RF(filter(R2,code_engin==engin_encours),observation='activity','dist')
 #' @export
 
-formula_train<-form
 model.traj.RF<-function(traj,observation=NULL,form=NULL) {
 
 
@@ -23,8 +22,8 @@ model.traj.RF<-function(traj,observation=NULL,form=NULL) {
   traj %>% dplyr::filter(no_trajet %in% labelled_traj$no_trajet) %>% st_drop_geometry() %>% as_tibble() ->labelled_dta
 
   labelled_dta %>% mutate(across(!!as.name(observation), as.factor))->labelled_dta
+  colX    <- which(stringr::str_detect(colnames(labelled_dta) , gsub('\\+','|',form)))
 
-    #colX    <- which(stringr::str_detect(colnames(labelled_dta) , 'dist|circle|R2n|rel.angle'))
   count_class <-  labelled_dta %>% st_drop_geometry()%>% dplyr::group_by(!!as.name(observation)) %>% dplyr::summarise(count = n()) %>% dplyr::select(count) %>% unlist()
   weight_class <-  round(sum(count_class) / count_class,1)
 
