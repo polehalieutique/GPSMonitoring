@@ -2,11 +2,14 @@
 title: "Vignette1"
 author: "Jerome Guitton"
 date: "14/10/2021"
-output: html_document
+output:
+  html_document: default
+  html: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE,out.width="100%")
 getwd()
 rm (list=ls())
 library(sf)
@@ -54,8 +57,11 @@ The Guinean dataset will be used to illustrate package capabilities in the prese
 When loading the DEMERSTEM_gps.Rdata file, located in the GPSMonitoring package data directory, a GPSdataset dataframe is loaded. 
 
 
-```{r }
-load('../data/DEMERSTEM_gps.Rdata')
+```{r part1}
+
+dataset<-.libPaths()[2]
+load(paste(dataset,'/GPSMonitoring/data/DEMERSTEM_gps.Rdata',sep=''))
+
 
 head(GPSdataset) %>%  kable()
 
@@ -86,7 +92,7 @@ A map of the dataset area coastal shape is also include in the package (data/fon
 
 ```{r}
 
-load('../data/fond.Rdata')
+load(paste(dataset,'/GPSMonitoring/data/fond.Rdata',sep=''))
 
 ggplot(gps.all)+geom_sf(data=fond)+geom_sf(aes(color=filename),size=0.2)
 
@@ -104,7 +110,7 @@ Once the data are loaded we have a data curation process :
  * Second step we can delete positions included in such Area of non interest. Especially we could consider the port as an area of interest. Considering the the GPS is not switch off when the boat is not active (in the anchor) we want to avoid to take position within a perimter of X meters around the port into account. So we want to exlude the part of the dataset that is within this exclude area that could be defined by the port location and a perimeter. 
 
 
-```{r}
+```{r part2}
 
 
 emprise<-matrix(c(-17,11,-14,11,-14,9,-15,9,-17,11),ncol=2, byrow=TRUE)
@@ -143,11 +149,12 @@ pol.extent<-create.extent(st_convex_hull(st_union(gps.all)))
 
 
 ```
+<iframe width="560" height="315" src="https://youtu.be/XsOHCEYjyAQ" frameborder="0"  allowfullscreen></iframe>
 
 
-```{r}
+```{r part3}
 
-load("../data/emprise.Rdata")
+load(paste(dataset,"/GPSMonitoring/data/emprise.Rdata",sep=''))
 
 ggplot(emprise)+geom_sf()+
   ggtitle("More precise pol.extent created using create.extent function")
@@ -172,7 +179,7 @@ We considered that if there is more than n (minutes) between 2 position, we are 
 
 The id of a GPS record is the filemename
 
-```{r}
+```{r part4}
 limit<-600*120 #2 hours between two point and we consider a new traject
  #limit<-240
 head(gps.all.cur)
@@ -201,7 +208,7 @@ head(gps.all.cur_traj)
 As we can see here, the ping frequency is not constant. So we decide to recalibrate all the trajectory using a constant frequency of dt=300 s (5 minutes). The package ADEhabitat is used.
 
 
-```{r }
+```{r part5}
 
 ggplot(filter(gps.all.cur_traj,duree<350))+geom_histogram(aes(x=duree))
 
@@ -234,7 +241,8 @@ Once the GPS pings are ready, we have now to predict fishing event. First we hav
 The first set of observed data could be provided using on board observers. The datset of observed fishing event will be composed of start time and end time of fishing event by observe fishermen. 
 
 ```{r}
-Observed_FO<-read.csv('../data/Observed_FO.csv')
+
+load(paste(dataset,'/GPSMonitoring/data/Observed_FO.Rdata',sep=''))
 
 head(Observed_FO) %>% kable()
 ```
@@ -283,7 +291,7 @@ Observed data are flaging GPS position to be active or not (ie. Fishing or not).
 R2n is the the squared net displacement between the current relocation and the first relocation of the trajectory. 
 We use distance between two point which is the same as the speed as frequency is constant.
 
-```{r}
+```{r part6}
 
 liste_trajet_avec_obs<-R2 %>% st_drop_geometry()%>% filter(activity=='active')%>% dplyr::distinct(no_trajet)     
 
@@ -342,7 +350,7 @@ plot(gear.glm)
 
 ### Prédiction using GLM model
 
-```{r}
+```{r part7}
 
 R2.pred<-glm.predict(filter(R2,code_engin==engin_encours),gear.glm,seuil=0.5)
 unique(R2.pred$predict.glm)
@@ -372,7 +380,7 @@ We will use the same function silicoTraj in two different modes sequencially :
  
 Add Video on that section  
 
-```{r}
+```{r eval=FALSE}
 
 R2 %>% st_drop_geometry() %>% dplyr::filter(code_engin==engin_encours) %>% dplyr::group_by(no_trajet) %>% 
   dplyr::summarize(nb_positions=n()) %>% dplyr::arrange(desc(nb_positions)) %>% dplyr::top_n(5) -> traj_to_observe
@@ -381,7 +389,7 @@ R2 %>% filter(no_trajet %in% traj_to_observe$no_trajet) %>%
   ggplot()+geom_sf(aes(color=as.factor(no_trajet)))+facet_wrap(~no_trajet)
 
 #I create the new column and set values to Unknown 
-R2$activity_plus<-'UK'
+
 
 for (i in traj_to_observe$no_trajet)
 {
@@ -395,6 +403,14 @@ for (i in traj_to_observe$no_trajet)
 }
 
 ```
+
+```{r echo=FALSE}
+
+load("../../Vignette_LI393.RData")
+
+```
+
+
 
 With these new set of data i try to improve the model 
 
@@ -421,7 +437,7 @@ Conclusion, on board observers data will be trashed and we can easily have bette
 
 #### Add a new covariable : the number of position in the same spatial and temporal windows
 
-```{r}
+```{r part8}
 
 R2test_retour<-all.add.nb.point(R2.pred.plus,r=2000,temp_windows=20)
 
@@ -469,7 +485,7 @@ model.traj.RF and RF.predict function are similar to model.traj.glm and gm.predi
 
 
 
-```{r}
+```{r partRF}
 
 #To select some 
 form <-"dist+abs.angle+circle2000"
@@ -548,7 +564,7 @@ ggplot(fond)+geom_sf(fill=NA)+
 
 ## Regular grid end fishing event
 
-```{r}
+```{r partgrid}
 
 engin_encours<-'FMCl'
 engin_encours<-'YO'
@@ -557,7 +573,7 @@ engin_encours<-'FMCy'
 #Remettre avec un shapefile dans data
 #fond<-st_read(con,query="select st_intersection(st_buffer(geom,0),ST_GeomFromText('POLYGON((-18 13,-13 13,-13 7.94,-18 7.94,-18 13))',4326)) as geom 
 #					   from communes_uni")
-load("../data/grid.Rdata")
+load(paste(dataset,"/GPSMonitoring/data/grid.Rdata",sep=''))
 ggplot(grid)+geom_sf(color=NA)+geom_sf(data=R2.pred.plus.nb.RF)
 
 
