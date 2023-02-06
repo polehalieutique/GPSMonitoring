@@ -315,16 +315,16 @@ engin_encours<-'FMCy'
 head(R2_avec_obs)
 R2_avec_obs %>% filter(code_engin==engin_encours) %>% ggplot()+geom_line(aes(x=date,y=dist))+
   geom_point(aes(x=date,dist,col = activity))  +
-  facet_wrap(~no_trajet,scale='free')+ggtitle("For gear FMD Fishing event ~ distance (=speed)")
+  facet_wrap(~no_trajet,scale='free')+ggtitle(paste("For gear ",engin_encours," Fishing event ~ distance (=speed)",sep=""))
 
 
 R2_avec_obs %>% filter(code_engin==engin_encours) %>% ggplot()+geom_line(aes(x=date,y=R2n))+
   geom_point(aes(x=date,R2n,col = activity))  +
-  facet_wrap(~no_trajet,scale='free')+ggtitle("For gear FMD Relation observation et R2n")
+  facet_wrap(~no_trajet,scale='free')+ggtitle(paste("For gear ",engin_encours," Relation observation et R2n",sep=''))
 
 R2_avec_obs %>% filter(code_engin==engin_encours) %>% ggplot()+geom_line(aes(x=date,y=rel.angle))+
   geom_point(aes(x=date,rel.angle,col = activity))  +
-  facet_wrap(~no_trajet,scale='free')+ggtitle("For gear FMD  Relation observation et rel.angle")
+  facet_wrap(~no_trajet,scale='free')+ggtitle(paste("For gear ",engin_encours,"  Relation observation et rel.angle",sep=''))
 
 
 ```
@@ -389,7 +389,7 @@ R2 %>% filter(no_trajet %in% traj_to_observe$no_trajet) %>%
   ggplot()+geom_sf(aes(color=as.factor(no_trajet)))+facet_wrap(~no_trajet)
 
 #I create the new column and set values to Unknown 
-
+R2$activity_plus<-'UK'
 
 for (i in traj_to_observe$no_trajet)
 {
