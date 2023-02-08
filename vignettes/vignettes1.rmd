@@ -149,6 +149,7 @@ pol.extent<-create.extent(st_convex_hull(st_union(gps.all)))
 
 
 ```
+
 <iframe width="560" height="315" src="https://youtu.be/XsOHCEYjyAQ" frameborder="0"  allowfullscreen></iframe>
 
 
@@ -352,8 +353,8 @@ plot(gear.glm)
 
 ```{r part7}
 
+
 R2.pred<-glm.predict(filter(R2,code_engin==engin_encours),gear.glm,seuil=0.5)
-unique(R2.pred$predict.glm)
 
 p1<-ggplot(R2.pred)+geom_sf(aes(color=as.factor(predict.glm)),alpha=0.45,lwd=0.1)+
     scale_fill_viridis_c(option = "plasma", trans = "sqrt")
@@ -378,7 +379,9 @@ We will use the same function silicoTraj in two different modes sequencially :
  * First in mode speed where i qualify GPS ping using speed
  * Second one where i can qualify GPS ping directly on a map
  
-Add Video on that section  
+
+<iframe width="560" height="315" src="https://youtu.be/CMCZmXLH6IM" frameborder="0"  allowfullscreen></iframe>
+
 
 ```{r eval=FALSE}
 
@@ -498,7 +501,7 @@ ggplot(R2.pred.plus.nb.RF)+geom_sf(aes(color=predict.RF),lwd=0.1)+geom_sf(data=s
   ggtitle("Map of predict activities using RF method")
 
 ggplot(R2.pred.plus.nb.RF)+geom_sf(aes(color=predict.glm),lwd=0.1)+geom_sf(data=st_crop(fond,st_bbox(R2.pred.plus.nb.RF)))+
-  scale_color_manual(values = c("TRUE" = "lightgreen","FALSE"="orange")) +
+  scale_color_manual(values = c("active" = "lightgreen","UK"="orange")) +
   ggtitle("Map of predict activities using GLM method")
 
 
@@ -507,57 +510,32 @@ ggplot(R2.pred.plus.nb.RF)+geom_sf(aes(color=predict.glm),lwd=0.1)+geom_sf(data=
 
 ## Quality of models
 
+Quality of models could be describe using SENSITIVITY, SPECIFICITY AND ACCURACY indicators.
 
 
+![Quality indicators specifications](../man/figures/quality.png)
 
-## For all gear using model (dist+R2n based on improved observed activity)
+The qualidy.ind function of the GPSMonitoring package aims to calculate those indicators using three parameters : the dataset, the name of the column for observed value and the column name for predict values.
+
 
 ```{r}
 
-engin_encours<-'FMCl'
-engin_encours<-'YO'
-engin_encours<-'FMCy'
+qual.RF<-quality.ind(R2.pred.plus.nb.RF,col.activity='activity_plus',col.predict='predict.RF')
 
-R2_engin<-filter(R2,code_engin==engin_encours) %>% mutate(observation2=as.numeric(activity=='active'))
+qual.glm<-quality.ind(R2.pred.plus.nb.RF,col.activity='activity_plus',col.predict='predict.glm')
 
-dist.limit<-c(0.0010,0.0020)
-dist<-0.0006
-R2_engin<-R2%>% mutate(predict_glm=(dist>dist.limit[1] & dist<dist.limit[2]))
+qual.glm[[1]] %>% mutate(model='glm') %>% select(model,accuracy,sensitivity,specificity) %>% pivot_longer(cols=!model)->glm.ind
+qual.RF[[1]] %>% mutate(model='RF') %>% select(model,accuracy,sensitivity,specificity) %>% pivot_longer(cols=!model)->RF.ind
 
-
-ggplot(R2_engin)+geom_sf(aes(color=predict_glm))+facet_wrap(~code_engin)
-
-bb<-st_bbox(filter(R2_engin,predict_glm==TRUE))
-
-
-
-ggplot(filter(R2_engin,code_engin=='YO'))+geom_sf(aes(color=predict_glm))+
-  xlim(as.numeric(bb$xmin),as.numeric(bb$xmax))+ ylim(as.numeric(bb$ymin),as.numeric(bb$ymax))+
-  geom_sf(data=fond)+facet_wrap(~code_engin)
-
-
-R2_engin<-R2_engin %>% mutate(long=sf::st_coordinates(.)[,1],lat=sf::st_coordinates(.)[,2])
-head(R2_engin)
-
-ggplot(filter(R2_engin, predict_glm==TRUE), aes(x=longitude, y=latitude) ) +
-  geom_bin2d(bins = 10) +
-  scale_fill_continuous(type = "viridis") +
-  theme_bw()
-
-bb<-st_bbox(filter(R2_engin,predict_glm==TRUE))
-
-
-ggplot(fond)+geom_sf(fill=NA)+
-  geom_density_2d_filled(data=filter(R2_engin,predict_glm==TRUE),aes(x = long, y = lat),breaks = seq(0.01, 120.0, length.out = 20))+
-  xlim(as.numeric(bb$xmin),as.numeric(bb$xmax))+ ylim(as.numeric(bb$ymin),as.numeric(bb$ymax))+facet_wrap(~code_engin)
-
-
-
-
-
-
+rbind(glm.ind,RF.ind) %>% 
+  ggplot()+geom_bar(aes(x=name,y=value,fill=model),stat='identity',position='dodge')+
+  ggtitle("Quality comparaison between two last models GLM/RF")
 
 ```
+
+
+
+
 
 
 
@@ -566,8 +544,7 @@ ggplot(fond)+geom_sf(fill=NA)+
 
 ```{r partgrid}
 
-engin_encours<-'FMCl'
-engin_encours<-'YO'
+
 engin_encours<-'FMCy'
 
 #Remettre avec un shapefile dans data

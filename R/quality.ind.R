@@ -1,25 +1,28 @@
 #' Calculate and print sensitivity, accuracy and
 #' @param proj.tarj Set of trajectory with predict.glm values
-#' @param col.activity Column name for
+#' @param col.activity Column name for observed fishing event
+#' @param col.predict Column name for predict values
 #' @examples
 #' #GPX.load(gpx_rep='data/gpx')
 #' @export
 
+
 quality.ind<- function (proj.traj,col.activity=NULL,col.predict=NULL){
 
 
-  if (!is.null(col.predict)) {col.activity<-"predict.glm"}
-  if (!is.null(col.activity)) {col.activity<-"activity"}
-  else
-  {
-    if (!is.null(proj.traj)) {
-no_trajet_with_obs<-R2.pred.plus %>% dplyr::filter(!!as.symbol(col.activity)==1) %>% dplyr::distinct(no_trajet)
+  if (is.null(col.predict)) {col.predict<-"predict.glm"}
+  if (is.null(col.activity)) {col.activity<-"activity"}
 
-R2.pred.plus %>% st_drop_geometry() %>% dplyr::filter(no_trajet %in% no_trajet_with_obs$no_trajet) %>%
-  dplyr::mutate(fp=case_when((!!as.symbol(col.activity)==0 & !!as.symbol(col.activity)==as.numeric(!!as.symbol(col.predict)))~1,TRUE~0),
-                tp=case_when((!!as.symbol(col.activity)==1 & !!as.symbol(col.activity)==as.numeric(!!as.symbol(col.predict)))~1,TRUE~0),
-                tn=case_when((!!as.symbol(col.activity)==1 & !!as.symbol(col.activity)!=as.numeric(!!as.symbol(col.predict)))~1,TRUE~0),
-                fn=case_when((!!as.symbol(col.activity)==0 & !!as.symbol(col.activity)!=as.numeric(!!as.symbol(col.predict)))~1,TRUE~0)
+if (!is.null(proj.traj)) {
+
+no_trajet_with_obs<-proj.traj %>% dplyr::filter(!!as.symbol(col.activity)=='active') %>% dplyr::distinct(no_trajet)
+
+
+proj.traj %>% st_drop_geometry() %>% dplyr::filter(no_trajet %in% no_trajet_with_obs$no_trajet) %>%
+  dplyr::mutate(fp=case_when((!!as.symbol(col.activity)=='UK' & !!as.symbol(col.activity)==!!as.symbol(col.predict))~1,TRUE~0),
+                tp=case_when((!!as.symbol(col.activity)=='active' & !!as.symbol(col.activity)==!!as.symbol(col.predict))~1,TRUE~0),
+                tn=case_when((!!as.symbol(col.activity)=='active' & !!as.symbol(col.activity)!=!!as.symbol(col.predict))~1,TRUE~0),
+                fn=case_when((!!as.symbol(col.activity)=='UK' & !!as.symbol(col.activity)!=!!as.symbol(col.predict))~1,TRUE~0)
                 ) %>%
   dplyr::select(fp,tp,tn,fn) %>% dplyr::summarize(fp=sum(fp),tp=sum(tp),tn=sum(tn),fn=sum(fn)) %>%
   dplyr::mutate(indicator='quality',accuracy=(fn+tp)/(fn+tp+fn+fp),sensitivity=tp/(tp+fn),specificity=tn/(tn+fn))->qual.ind
@@ -29,7 +32,6 @@ qual.ind %>% dplyr::select(indicator,accuracy,sensitivity,specificity) %>% pivot
   g1
 
         }else {print('No data to feed the function')}
-  }
 
 return(list(qual.ind,g1))
 

@@ -3,17 +3,19 @@
 #' @param gear.glm The glm model used for the prediction
 #' @param seuil Threshold used to predict fishing activity
 #' @examples
-#' #glm.predict(filter(R2,code_engin==engin_encours),gear.glm2,seuil=0.5)
+#' #glm.predict(filter(R2,code_engin==engin_encours),gear.glm,seuil=0.5)
 #' @export
 #'
+
 glm.predict <- function(traj,gear.glm,seuil)
 {
 
-  traj %>% mutate(activity=as.numeric(activity=='active')) ->traj2
 
+traj2$predict.glm.int<-(predict(gear.glm,traj,type="response")>seuil)
 
+traj2 %>%  mutate(predict.glm=case_when(predict.glm.int==0 ~ 'UK',predict.glm.int==1 ~ 'active'))->traj2
+traj$predict.glm<-traj2$predict.glm
 
-  traj2$predict.glm<-(predict(gear.glm,traj2,type="response")>seuil)
-  return(traj2)
+return(traj)
 
 }
