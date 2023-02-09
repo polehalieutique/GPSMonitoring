@@ -1,15 +1,12 @@
 #' Redis.traj function will redistribute ping along the trajectory with a constant duration between ping with respect of speed and time of initial data.
-#' @param GPS.data sf object set up for GPX.load function
+#' @param GPS.data sf object loading GPX.load function or similar one
 #' @param step constant between ping
 #' @examples
 #'
 #' @export
 #'
 #'
-#GPS.data<-st_drop_geometry(gps.all.cur_traj)
-#step_dt<-300
-#id_trajet<-165
-Redis.traj<- function (GPS.data,step_dt){
+Redis.traj<- function (GPS.data,step_dt,silent=NULL){
 
 
     if (is.null(step)) {print('step parameter is request in order to use the function')}
@@ -19,7 +16,7 @@ iter<-0
 #GPS.data<-gpstmp
 for (id_trajet in unique(GPS.data$no_trajet))
 {
-print(id_trajet)
+if (is.null(silent)) {print(id_trajet)}
      GPStmp<-GPS.data %>% dplyr::filter(no_trajet==id_trajet)
 filename<-unique(GPStmp$filename)
 #print(paste(filename,id_trajet))

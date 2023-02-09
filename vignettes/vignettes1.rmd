@@ -150,7 +150,9 @@ pol.extent<-create.extent(st_convex_hull(st_union(gps.all)))
 
 ```
 
-<iframe width="560" height="315" src="https://youtu.be/XsOHCEYjyAQ" frameborder="0"  allowfullscreen></iframe>
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/XsOHCEYjyAQ" data-external= "1" title="Create.extent demonstration" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen> </iframe>
+
 
 
 ```{r part3}
@@ -209,8 +211,7 @@ head(gps.all.cur_traj)
 As we can see here, the ping frequency is not constant. So we decide to recalibrate all the trajectory using a constant frequency of dt=300 s (5 minutes). The package ADEhabitat is used.
 
 
-```{r part5}
-
+```{r part5,echo=FALSE,message=FALSE,warning=FALSE}
 ggplot(filter(gps.all.cur_traj,duree<350))+geom_histogram(aes(x=duree))
 
 
@@ -219,9 +220,11 @@ gpstmp<-filter(gps.all.cur_traj,track_fid==1)
 
 
 step_dt=300
-R.gps.all.cur_traj<-Redis.traj(GPS.data=st_drop_geometry(gps.all.cur_traj),step=step_dt)
+R.gps.all.cur_traj<-Redis.traj(GPS.data=st_drop_geometry(gps.all.cur_traj),step=step_dt,silent=TRUE)
+```
 
 
+```{r part5.1}
 ggplot(filter(R.gps.all.cur_traj,duree<350))+geom_histogram(aes(x=duree))
 
 
@@ -380,7 +383,10 @@ We will use the same function silicoTraj in two different modes sequencially :
  * Second one where i can qualify GPS ping directly on a map
  
 
-<iframe width="560" height="315" src="https://youtu.be/CMCZmXLH6IM" frameborder="0"  allowfullscreen></iframe>
+
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/CMCZmXLH6IM" data-external= "1" title="Silico.Traj demonstration" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen> </iframe>
+
 
 
 ```{r eval=FALSE}
