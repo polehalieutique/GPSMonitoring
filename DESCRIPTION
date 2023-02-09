@@ -29,5 +29,8 @@ Imports:
     leaflet,
     leaflet.extras,
     ggpubr,
+    caret,
+    ranger,
+    randomForest
 Depends: R (>= 3.5.0)
 VignetteBuilder: knitr

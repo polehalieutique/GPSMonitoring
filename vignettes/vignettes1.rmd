@@ -18,7 +18,7 @@ library(sqldf)
 library(dplyr)
 library(ggplot2)
 library(ggpubr)
-library(ggpubr)
+
 library(RPostgreSQL)
 library(tidyr)
 library(units)
@@ -45,7 +45,8 @@ Additional function will :
   * Modelize observed fishing events using Generalized Linear Models or Random Forest algorythms (model.traj.glm or model.traj.RF)
   * Predict fishing event on non observed fishing trips using GLM or RF models. (hlm.predict or RF.predict)
   
-  
+To install this package, use following R command : devtools::install_github('polehalieutique/GPSMonitoring')
+
 
 ## loading Gpx files
 
