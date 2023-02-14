@@ -31,42 +31,36 @@ library(ranger)
 library(randomForest)
 library(caret)
 
-
 ```
 
 ![Projet EU DEMERSTEM http://pescao-demerstem.org/ ](../man/figures/demerstem_court_transpa.png)
 ![Projet EU DEMERSTEM http://pescao-demerstem.org/ ](../man/figures/bandeau.png)
 
-![Quality indicators specifications](../man/figures/quality.png)
-
-
-
-
-
 # Introduction
 
+Le package R GPSMonitoring, developpé dans le cadre du projet UE/CEDEAO DEMERSTEM a été initié pour faciliter la gestion des données GPS dans le cadre d'un suivi des pêcheries artisanales. Il propose des fonctions de filtre (GPS.curation) qui vont permettre de selectionner uniquement les  positions en mer pour ensuite les qualifier en pêche ou non pêche. 
 
-The GPSMonitoring packages, developped during the EU/ECOWAS DEMERSTEM project, aims to facilitate GPS dataset managment for artisanal fisheries monitoring. Especially, it will allow easy filtering process (GPS.curation) to keep only tracks on sea that will only mix trajectory to the fishing area and fishing positions. 
+Des fonctions du packages vont en outre permettre :
 
-Additional function will :
-
-  * Cut GPS files in trips A GPS file can contains GPS data for a large set of fishing trip. A fishing trip is a set of position from the port, to the fishing area and back to the port. In order to prepare analysis we will cut the GPS file in fishing trips (GPS.add_traj_number)
-  * Standardize duration between pings. Sometimes the GPS frequency, even if the GPS is set up for a precise ping frequency, will be provide in another time step depending on the satellite accessibility. A function will recalibrate the trajectory to a constant frequency. It will then easier to analyse the dataset in a common way. (Redis.traj)
-  * Provide easy to use interface for silico Observation of trajectories. In order to help algorythms to predict fishing or non fishing event, we first have to provide a set of observation (on board or more frequently using afterward analysis). silicoTraj function will provide an easy way to look at some trajectory and qualify positions in fishing or non fishing events.
-  * Modelize observed fishing events using Generalized Linear Models or Random Forest algorythms (model.traj.glm or model.traj.RF)
-  * Predict fishing event on non observed fishing trips using GLM or RF models. (glm.predict or RF.predict)
+  * de découper les données GPS en sorties de pêche. En effet un fichier GPS peut contenir l'ensemble des positions du GPS, que celui-ci soit encore à terre ou acompagne une pirogue pour une sortie de pêche. On considerera une sortie de pêche comme un ensemble de position qui partent du port, vont sur des lieux de pêche et reviennent au port. La fonction GPS.add_traj_number permettra donc de découper les trajectoire en sorties de pêches.
+  * de standardiser le fréquence d'acquisition des positions. Il arrive en effet que la fréquence d'acquisition des GPS, même si elle a été initialisé de manière uniforme ne soit pas constante. Ceci peut être du notamment a des defauts d'accessibilité des satellites. La fonction Redis.traj va être utilisée pour pour recalibrer une trajectoire sur un fréquence fixe ce qui facilitera leur modélisation.
+  * de proposer une interface simple pour décrire les trajectoires à dire d'expert et ainsi qualifier les positions en pêche ou non pêche. Cela permettra de modéliser les trajectoires et ainsi de prédire des événements sans observation. La fonction silicoTraj permettra facilement de qualifier les positions GPS en fonction de la vitesse entre 2 points ou de la forme de la trajectoire.
+  * de produire les modèles en utilisant les méthodes GLM ou Random Forest (model.traj.glm or model.traj.RF)
+  * de prédire les points GPS en pêche en utilisant ces modèles. (glm.predict ou RF.predict)
   
-To install this package, use following R command : devtools::install_github('polehalieutique/GPSMonitoring')
+Pour installer ce packages, veuillez utiliser la commande suivante : devtools::install_github('polehalieutique/GPSMonitoring')
 
 
-## loading Gpx files
+## Charger les fichiers GPX
 
-A function GPX.load is provided to load one GPS file or a list of GPS files included in a given directory. 
-A dataset is also provided within the package itself (DEMERSTEM_GPS.Rdata) and contains a set of about 600 000 GPS positions from Kamsar Port Néné (Guinée) fishing monitoring System. 
-This dataset is provided through a data paper (DEMERSTEM project : dx.doi.org)
+Les fichiers GPX sont des fichiers XML utilisés par de nombreux GPS du marchés. 
 
-The Guinean dataset will be used to illustrate package capabilities in the present document.
-When loading the DEMERSTEM_gps.Rdata file, located in the GPSMonitoring package data directory, a GPSdataset dataframe is loaded. 
+La fonction  GPX.load va vous permettre de charger un fichier GPX ou l'ensemble des fichiers GPX d'un répertoire donné.
+Le package lui même est fourni avec un jeu de données (DEMERSTEM_GPS.Rdata) qui contient un echantillon d'environ 600 000 positions GPS collectés par le Centre National des Sciences Halieutiques De Boussoura (Guinée) dans le cadre du projet DEMERSTEM. Le jeu de données concerne des pirogues suivies au port artisanal de Kamsar Port Néné (KPN). 
+Le jeux de données correspond à un data paper (DEMERSTEM project : dx.doi.org)
+
+Le jeux de données collecté par les collègues Guinéens (Merci à Mohamed Soumah) permettra d'illustrer les fontionnalités du package dans ce document.
+Lors du chargement du fichier DEMERSTEM_gps.Rdata, inclus dans le package, une dataframe GPSdataset sera disponible. 
 
 
 ```{r part1}
@@ -80,9 +74,10 @@ head(GPSdataset) %>%  kable()
 GPSdataset<-GPSdataset %>% filter(date_heure<"2019-09-30 20:20:53 CEST")
 ```
 
-For the vignette, i will decrease the dataset decreasing the timeframe to the 30-09-2019.
+Le jeu de données étant un peu large pour la demonstration je vais le réduire à une plage de temps plus faible qui se terminera le 30 septembre 2019.
 
-The original dataset is then transform in a sf object. We also add original GPS filename of the dataset. Once the dataframe is becoming a sf object, we can plot it using geom_sf function. 
+Ce jeux de données dataframe va être transformé en objet SF. Nous ajoutons aussi le nom du fichier GPX d'origine. Celui-ci, dans le protocole de collecte de données, renseigne le village, l'engin et le pêcheur suivi.
+Une fois ces manipulations effectuée, on peut regarder les données en utilisant la fonction geom_sf. 
 
 
 ```{r }
@@ -100,7 +95,7 @@ ggplot(gps.all)+geom_sf(aes(color=filename),size=0.2)
 
 
 ```
-A map of the dataset area coastal shape is also include in the package (data/fond.Rdata)
+Une carte du trait de côte en lien avec les données est aussi mise à la disposition au travers du package (data/fond.Rdata)
 
 ```{r}
 
@@ -111,15 +106,19 @@ ggplot(gps.all)+geom_sf(data=fond)+geom_sf(aes(color=filename),size=0.2)
 ```
 
 
-## Data curation
+## Préparation des données
 
-Data curation will include data filtering, Fishing trip information and frequency standardization.
+La préparation des données peut être décomposée en trois étapes :
+ * le filtrage des données en mer
+ * le découpage en sorties de pêche
+ * la standardisation a posteriori des fréquences d'acquisition des données
+ 
 
-### Area Of Interest and Area of Non Interest
+### Définition de la zone d'intérêt
 
-Once the data are loaded we have a data curation process :
- * first step we define the Area Of Interest (emprise) and we will keep all the positions within this AOI (pol.extent)
- * Second step we can delete positions included in such Area of non interest. Especially we could consider the port as an area of interest. Considering the the GPS is not switch off when the boat is not active (in the anchor) we want to avoid to take position within a perimter of X meters around the port into account. So we want to exlude the part of the dataset that is within this exclude area that could be defined by the port location and a perimeter. 
+Une fois les données chargées nous proposons de filter les données:
+ * Dans un premier temps on défini la zone d'intérêt (emprise) et nous graderons toutes les positions comprises dans cette zone (pol.extent).
+ * Dans un second temps, on peut eventuellement supprimer les positions incluses dans une zone d'exclusion. Typiquement, on peut retirer la zone du port en considérant un perimètre d'exclusion ou les activités sont trop proches du port pour être distinguées. Dans ce second cas on veut exclure les données incluses dans ce périmètre. 
 
 
 ```{r part2}
@@ -149,11 +148,12 @@ ggarrange(g1,g2)
 
 
 ```
-A second way to define the AOI is to use the create.extent function that will display a map of the area and the user will define manually the area of interest.
 
-Using this tool, you can create a polygon that will define the extent of GPS position to take into account.The interface is open with a satellite map of the area and a polygon which is the input parameter. In the folllowing exemple the input parameter is the convexhul of the dataset. 
+Une autre façon de définir la zone d'intérêt est d'utiliser la fonction create.extent qui va afficher une image satellite de la zone ainsi qu'un polygone construit avec la zone convexe créé à partir de l'ensemble des points de mon jeu de données. 
 
-Include video of pol.extent definition usingcreate.extent function.
+Cet outil permettra de créé facilement un polygon (objet SF) qui définira la zone d'étude aussi précisément que vous le désirez (grace au zoom notamment pour éviter les zones portuaires. 
+
+
 
 ```{r eval=FALSE}
 
@@ -162,9 +162,11 @@ pol.extent<-create.extent(st_convex_hull(st_union(gps.all)))
 
 ```
 
+La video suivante est une démonstration de l'utilisation de cette fonction :
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/XsOHCEYjyAQ" data-external= "1" title="Create.extent demonstration" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen> </iframe>
 
+Une fois la zone créée, comme tout objet sf, vous pouvez la sauvegarder en shapefile (st_write) ou en Rdata (save(pol.extent,"monfichier.Rdata"))
 
 
 ```{r part3}
@@ -188,7 +190,7 @@ ggarrange(g1,g2)
 
 ```
 
-### Cut trajectory Fishing trips
+### Découper une trajectoire en sorties de pêche
 
 We considered that if there is more than n (minutes) between 2 position, we are starting a new traject, a new fihing trip. 
 
