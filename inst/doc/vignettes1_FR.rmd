@@ -4,7 +4,7 @@ author: "Jerome Guitton"
 date: "14/10/2021"
 output:
 vignette: >
-  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteIndexEntry{Full use example}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

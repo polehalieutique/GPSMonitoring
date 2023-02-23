@@ -1,15 +1,4 @@
----
-title: "GPSMonitoring vignette UK"
-author: "Jerome Guitton"
-date: "14/10/2021"
-output:
-vignette: >
-  %\VignetteIndexEntry{Vignette Title}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
----
-
-```{r setup, include=FALSE}
+## ----setup, include=FALSE---------------------------------------------------------------------------------------------------
 knitr::opts_chunk$set(echo = TRUE,out.width="100%")
 getwd()
 rm (list=ls())
@@ -33,40 +22,7 @@ library(randomForest)
 library(caret)
 
 
-```
-
-![Projet EU DEMERSTEM http://pescao-demerstem.org/ ](../man/figures/demerstem_court_transpa.png)
-![Projet EU DEMERSTEM http://pescao-demerstem.org/ ](../man/figures/bandeau.png)
-
-
-
-# Introduction
-
-
-The GPSMonitoring packages, developped during the EU/ECOWAS DEMERSTEM project, aims to facilitate GPS dataset managment for artisanal fisheries monitoring. Especially, it will allow easy filtering process (GPS.curation) to keep only tracks on sea that will only mix trajectory to the fishing area and fishing positions. 
-
-Additional function will :
-
-  * Cut GPS files in trips A GPS file can contains GPS data for a large set of fishing trip. A fishing trip is a set of position from the port, to the fishing area and back to the port. In order to prepare analysis we will cut the GPS file in fishing trips (GPS.add_traj_number)
-  * Standardize duration between pings. Sometimes the GPS frequency, even if the GPS is set up for a precise ping frequency, will be provide in another time step depending on the satellite accessibility. A function will recalibrate the trajectory to a constant frequency. It will then easier to analyse the dataset in a common way. (Redis.traj)
-  * Provide easy to use interface for silico Observation of trajectories. In order to help algorythms to predict fishing or non fishing event, we first have to provide a set of observation (on board or more frequently using afterward analysis). silicoTraj function will provide an easy way to look at some trajectory and qualify positions in fishing or non fishing events.
-  * Modelize observed fishing events using Generalized Linear Models or Random Forest algorythms (model.traj.glm or model.traj.RF)
-  * Predict fishing event on non observed fishing trips using GLM or RF models. (glm.predict or RF.predict)
-  
-To install this package, use following R command : devtools::install_github('polehalieutique/GPSMonitoring')
-
-
-## loading Gpx files
-
-A function GPX.load is provided to load one GPS file or a list of GPS files included in a given directory. 
-A dataset is also provided within the package itself (DEMERSTEM_GPS.Rdata) and contains a set of about 600 000 GPS positions from Kamsar Port Néné (Guinée) fishing monitoring System. 
-This dataset is provided through a data paper (DEMERSTEM project : dx.doi.org)
-
-The Guinean dataset will be used to illustrate package capabilities in the present document.
-When loading the DEMERSTEM_gps.Rdata file, located in the GPSMonitoring package data directory, a GPSdataset dataframe is loaded. 
-
-
-```{r part1}
+## ----part1------------------------------------------------------------------------------------------------------------------
 
 dataset<-.libPaths()[2]
 load(paste(dataset,'/GPSMonitoring/data/DEMERSTEM_gps.Rdata',sep=''))
@@ -75,14 +31,8 @@ load(paste(dataset,'/GPSMonitoring/data/DEMERSTEM_gps.Rdata',sep=''))
 head(GPSdataset) %>%  kable()
 
 GPSdataset<-GPSdataset %>% filter(date_heure<"2019-09-30 20:20:53 CEST")
-```
 
-For the vignette, i will decrease the dataset decreasing the timeframe to the 30-09-2019.
-
-The original dataset is then transform in a sf object. We also add original GPS filename of the dataset. Once the dataframe is becoming a sf object, we can plot it using geom_sf function. 
-
-
-```{r }
+## ---------------------------------------------------------------------------------------------------------------------------
 
 GPSdataset %>% mutate(filename=paste(code_village,code_engin,code_pecheur,'.gpx',sep='_')) %>% 
 arrange (filename) %>% dplyr::distinct(code_village,code_engin,code_pecheur,filename) %>% 
@@ -96,30 +46,15 @@ ggplot(gps.all)+geom_sf(aes(color=filename),size=0.2)
 
 
 
-```
-A map of the dataset area coastal shape is also include in the package (data/fond.Rdata)
 
-```{r}
+## ---------------------------------------------------------------------------------------------------------------------------
 
 load(paste(dataset,'/GPSMonitoring/data/fond.Rdata',sep=''))
 
 ggplot(gps.all)+geom_sf(data=fond)+geom_sf(aes(color=filename),size=0.2)
 
-```
 
-
-## Data curation
-
-Data curation will include data filtering, Fishing trip information and frequency standardization.
-
-### Area Of Interest and Area of Non Interest
-
-Once the data are loaded we have a data curation process :
- * first step we define the Area Of Interest (emprise) and we will keep all the positions within this AOI (pol.extent)
- * Second step we can delete positions included in such Area of non interest. Especially we could consider the port as an area of interest. Considering the the GPS is not switch off when the boat is not active (in the anchor) we want to avoid to take position within a perimter of X meters around the port into account. So we want to exlude the part of the dataset that is within this exclude area that could be defined by the port location and a perimeter. 
-
-
-```{r part2}
+## ----part2------------------------------------------------------------------------------------------------------------------
 
 
 emprise<-matrix(c(-17,11,-14,11,-14,9,-15,9,-17,11),ncol=2, byrow=TRUE)
@@ -145,26 +80,14 @@ g2<-ggplot(gps.all.cur)+geom_sf()+geom_sf(data=exclude,fill=rgb(0.8,0.11,0.1,0.5
 ggarrange(g1,g2)
 
 
-```
-A second way to define the AOI is to use the create.extent function that will display a map of the area and the user will define manually the area of interest.
 
-Using this tool, you can create a polygon that will define the extent of GPS position to take into account.The interface is open with a satellite map of the area and a polygon which is the input parameter. In the folllowing exemple the input parameter is the convexhul of the dataset. 
+## ----eval=FALSE-------------------------------------------------------------------------------------------------------------
+#  
+#  pol.extent<-create.extent(st_convex_hull(st_union(gps.all)))
+#  
+#  
 
-Include video of pol.extent definition usingcreate.extent function.
-
-```{r eval=FALSE}
-
-pol.extent<-create.extent(st_convex_hull(st_union(gps.all)))
-
-
-```
-
-
-<iframe width="560" height="315" src="https://www.youtube.com/embed/XsOHCEYjyAQ" data-external= "1" title="Create.extent demonstration" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen> </iframe>
-
-
-
-```{r part3}
+## ----part3------------------------------------------------------------------------------------------------------------------
 
 load(paste(dataset,"/GPSMonitoring/data/emprise.Rdata",sep=''))
 
@@ -183,15 +106,8 @@ g2<-ggplot(gps.all.cur)+geom_sf()+geom_sf(data=exclude,fill=rgb(0.8,0.11,0.1,0.5
 
 ggarrange(g1,g2)
 
-```
 
-### Cut trajectory Fishing trips
-
-We considered that if there is more than n (minutes) between 2 position, we are starting a new traject, a new fihing trip. 
-
-The id of a GPS record is the filemename
-
-```{r part4}
+## ----part4------------------------------------------------------------------------------------------------------------------
 limit<-600*120 #2 hours between two point and we consider a new traject
  #limit<-240
 head(gps.all.cur)
@@ -211,16 +127,8 @@ unique(gps.all.cur_traj[gps.all.cur_traj$track_fid==2,]$no_trajet)
 head(gps.all.cur_traj)
 
 
-```
 
-
-
-### Standardize duration between 2 position
-
-As we can see here, the ping frequency is not constant. So we decide to recalibrate all the trajectory using a constant frequency of dt=300 s (5 minutes). The package ADEhabitat is used.
-
-
-```{r part5,echo=FALSE,message=FALSE,warning=FALSE}
+## ----part5,echo=FALSE,message=FALSE,warning=FALSE---------------------------------------------------------------------------
 ggplot(filter(gps.all.cur_traj,duree<350))+geom_histogram(aes(x=duree))
 
 
@@ -230,10 +138,8 @@ gpstmp<-filter(gps.all.cur_traj,track_fid==1)
 
 step_dt=300
 R.gps.all.cur_traj<-Redis.traj(GPS.data=st_drop_geometry(gps.all.cur_traj),step=step_dt,silent=TRUE)
-```
 
-
-```{r part5.1}
+## ----part5.1----------------------------------------------------------------------------------------------------------------
 ggplot(filter(R.gps.all.cur_traj,duree<350))+geom_histogram(aes(x=duree))
 
 
@@ -246,23 +152,14 @@ R.gps.all.cur_traj <- st_as_sf(x = R.gps.all.cur_traj,
 
 ggplot(R.gps.all.cur_traj)+geom_sf(aes(color=no_trajet))+ggtitle(paste("Tracks redistribute in a ",step_dt," period"))
 
-```
-## Join Observation data
 
-Once the GPS pings are ready, we have now to predict fishing event. First we have to observe fishing events and to flag them on GPS positions. 
-
-The first set of observed data could be provided using on board observers. The datset of observed fishing event will be composed of start time and end time of fishing event by observe fishermen. 
-
-```{r}
+## ---------------------------------------------------------------------------------------------------------------------------
 
 load(paste(dataset,'/GPSMonitoring/data/Observed_FO.Rdata',sep=''))
 
 head(Observed_FO) %>% kable()
-```
 
-We thus need to join observed fishing event to GPS dataset using (code_village,code_engin,code_pecheur) and the date of the GPS position that could be rely to start and end fishing operation.
-
-```{r}
+## ---------------------------------------------------------------------------------------------------------------------------
 R.gps.all.cur_traj %>% tidyr::separate(filename,c('code_village','code_engin','code_pecheur'),remove=FALSE,sep='_') %>% 
   mutate(code_pecheur=as.numeric(code_pecheur)) %>%  mutate(longitude = sf::st_coordinates(.)[,1],
                                              latitude = sf::st_coordinates(.)[,2])->R2
@@ -292,19 +189,8 @@ liste_trajet_avec_obs<-R2 %>% st_drop_geometry()%>% filter(activity=='active')%>
 ggplot(filter(R2,no_trajet %in% liste_trajet_avec_obs$no_trajet))+geom_sf(aes(color=as.factor(activity)),lwd=0.1)+ggtitle("Tracks redistribute in a 60s period with observation")
 
 
-```
 
-
-# Modelization of fishing event using observed data
-
-## First an overview of observed data
-
-Observed data are flaging GPS position to be active or not (ie. Fishing or not). Thus we can look at fishing or non fishing event and associated variable (speed, angle, R2n).
-
-R2n is the the squared net displacement between the current relocation and the first relocation of the trajectory. 
-We use distance between two point which is the same as the speed as frequency is constant.
-
-```{r part6}
+## ----part6------------------------------------------------------------------------------------------------------------------
 
 liste_trajet_avec_obs<-R2 %>% st_drop_geometry()%>% filter(activity=='active')%>% dplyr::distinct(no_trajet)     
 
@@ -340,14 +226,8 @@ R2_avec_obs %>% filter(code_engin==engin_encours) %>% ggplot()+geom_line(aes(x=d
   facet_wrap(~no_trajet,scale='free')+ggtitle(paste("For gear ",engin_encours,"  Relation observation et rel.angle",sep=''))
 
 
-```
 
-
-## GLM model between fishing event and speed or other trajectory parameters
-
-### Model definition
-
-```{r}
+## ---------------------------------------------------------------------------------------------------------------------------
 
 observation<-'activity'
 
@@ -359,11 +239,8 @@ summary(gear.glm)
 summary(gear.glm)
 plot(gear.glm)
 
-```
 
-### Prédiction using GLM model
-
-```{r part7}
+## ----part7------------------------------------------------------------------------------------------------------------------
 
 
 R2.pred<-glm.predict(filter(R2,code_engin==engin_encours),gear.glm,seuil=0.5)
@@ -374,65 +251,36 @@ p2<-ggplot(filter(R2_avec_obs,code_engin==engin_encours))+geom_sf(aes(color=acti
     scale_fill_viridis_c(option = "plasma", trans = "sqrt")
 ggarrange(p1,p2,ncol=1)
 
-```
-Obvisouly the Observed Fishing activities does not seem to be really efficient to produce a tight prediction
 
-### How to improve observed values
+## ----eval=FALSE-------------------------------------------------------------------------------------------------------------
+#  
+#  R2 %>% st_drop_geometry() %>% dplyr::filter(code_engin==engin_encours) %>% dplyr::group_by(no_trajet) %>%
+#    dplyr::summarize(nb_positions=n()) %>% dplyr::arrange(desc(nb_positions)) %>% dplyr::top_n(5) -> traj_to_observe
+#  
+#  R2 %>% filter(no_trajet %in% traj_to_observe$no_trajet) %>%
+#    ggplot()+geom_sf(aes(color=as.factor(no_trajet)))+facet_wrap(~no_trajet)
+#  
+#  #I create the new column and set values to Unknown
+#  R2$activity_plus<-'UK'
+#  
+#  for (i in traj_to_observe$no_trajet)
+#  {
+#    R2<-track_replace(R2,silicoTraj(filter(R2,no_trajet==i),mode='speed'))
+#  }
+#  
+#  
+#  for (i in traj_to_observe$no_trajet)
+#  {
+#    R2<-track_replace(R2,silicoTraj(filter(R2,no_trajet==i),mode='map'))
+#  }
+#  
 
-
-#### We can review observed fishing activities using visual interface: we define a new observation column : activity_plus
-
-If we are not confident in using on board observation, the second way to have "observed" fishing event is to qualify trajectory in active or not active segments. 
-To do that, we will use the silicoTraj function that will help you to qualify fishing event on a set of trajectories (the first 5 trajectories here selected in the longuest trajectories)
-
-The dataframe traj_to_observe contains the list of 5 (top_n(5)) track number.
-
-We will use the same function silicoTraj in two different modes sequencially :
- * First in mode speed where i qualify GPS ping using speed
- * Second one where i can qualify GPS ping directly on a map
- 
-
-
-
-<iframe width="560" height="315" src="https://www.youtube.com/embed/CMCZmXLH6IM" data-external= "1" title="Silico.Traj demonstration" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen> </iframe>
-
-
-
-```{r eval=FALSE}
-
-R2 %>% st_drop_geometry() %>% dplyr::filter(code_engin==engin_encours) %>% dplyr::group_by(no_trajet) %>% 
-  dplyr::summarize(nb_positions=n()) %>% dplyr::arrange(desc(nb_positions)) %>% dplyr::top_n(5) -> traj_to_observe
-
-R2 %>% filter(no_trajet %in% traj_to_observe$no_trajet) %>% 
-  ggplot()+geom_sf(aes(color=as.factor(no_trajet)))+facet_wrap(~no_trajet)
-
-#I create the new column and set values to Unknown 
-R2$activity_plus<-'UK'
-
-for (i in traj_to_observe$no_trajet)
-{
-  R2<-track_replace(R2,silicoTraj(filter(R2,no_trajet==i),mode='speed'))
-}
-
-
-for (i in traj_to_observe$no_trajet)
-{
-  R2<-track_replace(R2,silicoTraj(filter(R2,no_trajet==i),mode='map'))
-}
-
-```
-
-```{r echo=FALSE}
+## ----echo=FALSE-------------------------------------------------------------------------------------------------------------
 
 load("../../Vignette_LI393.RData")
 
-```
 
-
-
-With these new set of data i try to improve the model 
-
-```{r}
+## ---------------------------------------------------------------------------------------------------------------------------
 
 gear.glm.plus<-model.traj.glm(filter(R2,code_engin==engin_encours),observation="activity_plus",form= "dist+abs.angle")
 
@@ -448,14 +296,8 @@ p2<-ggplot(filter(R2.pred.plus,code_engin==engin_encours))+geom_sf(aes(color=act
     scale_fill_viridis_c(option = "plasma", trans = "sqrt")
 ggarrange(p1,p2,ncol=1)
 
-```
 
-Conclusion, on board observers data will be trashed and we can easily have better qualification using less energy, less funds but more expert knowledge in fishing events.
-
-
-#### Add a new covariable : the number of position in the same spatial and temporal windows
-
-```{r part8}
+## ----part8------------------------------------------------------------------------------------------------------------------
 
 R2test_retour<-all.add.nb.point(R2.pred.plus,r=2000,temp_windows=20)
 
@@ -465,11 +307,8 @@ ggplot(filter(R2test_retour,no_trajet==traj_to_observe$no_trajet[1]))+geom_sf(ae
 ggplot(filter(R2test_retour,no_trajet==traj_to_observe$no_trajet[1]))+geom_point(aes(x=id,y=circle2000,color=activity_plus))
 
 
-```
-Using this new variable, we try to improve the model
 
-
-```{r}
+## ---------------------------------------------------------------------------------------------------------------------------
 
 gear.glm.plus.nb<-model.traj.glm(filter(R2test_retour,code_engin==engin_encours),observation="activity_plus",form= "dist+abs.angle+circle2000")
 
@@ -488,22 +327,8 @@ p2<-ggplot(filter(R2.pred.plus.nb,code_engin==engin_encours))+geom_sf(aes(color=
 ggarrange(p1,p2,ncol=1)
 
 
-```
 
-The AIC of his model (same set of data but new variable in the formula) is better (-4300 instead of -3800). We could thus consider that adding thist circle2000 co variable imporve the model
-
-
-## Random Forest prediction
-
-Random forest is another algorythm which is able to predict fishing event using observed values. Methodology is describe in folowing article :
-
-[Estimating fishing effort in small-scale fisheries using GPS tracking data and random forests] (https://dx.doi.org/10.1016/j.ecolind.2020.107321).
-
-model.traj.RF and RF.predict function are similar to model.traj.glm and gm.predict function.
-
-
-
-```{r partRF}
+## ----partRF-----------------------------------------------------------------------------------------------------------------
 
 #To select some 
 form <-"dist+abs.angle+circle2000"
@@ -521,19 +346,8 @@ ggplot(R2.pred.plus.nb.RF)+geom_sf(aes(color=predict.glm),lwd=0.1)+geom_sf(data=
 
 
 
-```
 
-## Quality of models
-
-Quality of models could be describe using SENSITIVITY, SPECIFICITY AND ACCURACY indicators.
-
-
-![Quality indicators specifications](../man/figures/quality.png)
-
-The qualidy.ind function of the GPSMonitoring package aims to calculate those indicators using three parameters : the dataset, the name of the column for observed value and the column name for predict values.
-
-
-```{r}
+## ---------------------------------------------------------------------------------------------------------------------------
 
 qual.RF<-quality.ind(R2.pred.plus.nb.RF,col.activity='activity_plus',col.predict='predict.RF')
 
@@ -546,18 +360,8 @@ rbind(glm.ind,RF.ind) %>%
   ggplot()+geom_bar(aes(x=name,y=value,fill=model),stat='identity',position='dodge')+
   ggtitle("Quality comparaison between two last models GLM/RF")
 
-```
 
-
-
-
-
-
-
-
-## Regular grid end fishing event
-
-```{r partgrid}
+## ----partgrid---------------------------------------------------------------------------------------------------------------
 
 
 engin_encours<-'FMCy'
@@ -589,6 +393,4 @@ st_join(grid,R2.pred.plus.nb.RF,left=FALSE) %>% group_by(code_engin,id.x) %>% dp
 
 
 
-```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
