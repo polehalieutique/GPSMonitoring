@@ -1,7 +1,7 @@
 ---
 title: "GPSMonitoring vignette UK"
 author: "Jerome Guitton"
-date: "14/10/2021"
+date: "14/02/2023"
 output:
 vignette: >
   %\VignetteIndexEntry{Vignette Title}
@@ -12,7 +12,7 @@ vignette: >
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE,out.width="100%")
 getwd()
-rm (list=ls())
+rm (list=ls()) 
 library(sf)
 library(adehabitatLT)
 library(sqldf)
@@ -69,10 +69,9 @@ When loading the DEMERSTEM_gps.Rdata file, located in the GPSMonitoring package 
 ```{r part1}
 
 dataset<-.libPaths()[2]
-load(paste(dataset,'/GPSMonitoring/data/DEMERSTEM_gps.Rdata',sep=''))
+#load(paste(dataset,'/GPSMonitoring/data/DEMERSTEM_gps.Rdata',sep=''))
 
-
-head(GPSdataset) %>%  kable()
+data(GPSdataset)
 
 GPSdataset<-GPSdataset %>% filter(date_heure<"2019-09-30 20:20:53 CEST")
 ```
