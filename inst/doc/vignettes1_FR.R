@@ -24,9 +24,7 @@ library(caret)
 
 ## ----part1------------------------------------------------------------------------------------------------------------------
 
-dataset<-.libPaths()[2]
-load(paste(dataset,'/GPSMonitoring/data/DEMERSTEM_gps.Rdata',sep=''))
-
+data(GPSdataset)
 
 head(GPSdataset) %>%  kable()
 
@@ -48,8 +46,7 @@ ggplot(gps.all)+geom_sf(aes(color=filename),size=0.2)
 
 
 ## ---------------------------------------------------------------------------------------------------------------------------
-
-load(paste(dataset,'/GPSMonitoring/data/fond.Rdata',sep=''))
+data(fond)
 
 ggplot(gps.all)+geom_sf(data=fond)+geom_sf(aes(color=filename),size=0.2)
 
@@ -88,8 +85,8 @@ ggarrange(g1,g2)
 #  
 
 ## ----part3------------------------------------------------------------------------------------------------------------------
+data(emprise)
 
-load(paste(dataset,"/GPSMonitoring/data/emprise.Rdata",sep=''))
 
 ggplot(emprise)+geom_sf()+
   ggtitle("More precise pol.extent created using create.extent function")
@@ -154,8 +151,7 @@ ggplot(R.gps.all.cur_traj)+geom_sf(aes(color=no_trajet))+ggtitle(paste("Tracks r
 
 
 ## ---------------------------------------------------------------------------------------------------------------------------
-
-load(paste(dataset,'/GPSMonitoring/data/Observed_FO.Rdata',sep=''))
+data(Observed_FO)
 
 head(Observed_FO) %>% kable()
 
@@ -369,7 +365,7 @@ engin_encours<-'FMCy'
 #Remettre avec un shapefile dans data
 #fond<-st_read(con,query="select st_intersection(st_buffer(geom,0),ST_GeomFromText('POLYGON((-18 13,-13 13,-13 7.94,-18 7.94,-18 13))',4326)) as geom 
 #					   from communes_uni")
-load(paste(dataset,"/GPSMonitoring/data/grid.Rdata",sep=''))
+data(grid)
 ggplot(grid)+geom_sf(color=NA)+geom_sf(data=R2.pred.plus.nb.RF)
 
 
