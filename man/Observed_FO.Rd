@@ -2,10 +2,10 @@
 \alias{Observed_FO}
 \docType{data}
 \title{
-%%  Observed fishing event using on board obervers.
+Observed fishing event using on board obervers.
 }
 \description{
-%% During preliminary observation, we wanted to obtain real fishing event on vessel with GPS on board. Scientific observers was thus embarked. Linked to the GPS on board they were requested to note each fishing event during the fishing trip
+During preliminary observation, we wanted to obtain real fishing event on vessel with GPS on board. Scientific observers was thus embarked. Linked to the GPS on board they were requested to note each fishing event during the fishing trip
 }
 \usage{data("Observed_FO")}
 \format{

@@ -2,10 +2,10 @@
 \alias{emprise}
 \docType{data}
 \title{
-%%  Sample Area of interest
+Sample Area of interest
 }
 \description{
-%%  This sf object was set up using the create.extent function and is a polygon where all gps position within this polygon will be kept for analysis.
+This sf object was set up using the create.extent function and is a polygon where all gps position within this polygon will be kept for analysis.
 }
 \usage{data("emprise")}
 \format{

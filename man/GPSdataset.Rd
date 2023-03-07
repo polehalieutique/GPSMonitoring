@@ -2,10 +2,10 @@
 \alias{GPSdataset}
 \docType{data}
 \title{
-%%  A Large datset of GPS position collected on Fishing Canoe in Guinée during the DEMERSTEM EU project
+A Large datset of GPS position collected on Fishing Canoe in Guinée during the DEMERSTEM EU project
 }
 \description{
-%% GPS were embarked since September 2019 on such Artisanal fishing boat through the CNSHB* data collection (Centre National des Sciences Halieutiques de Bousssourah)
+GPS were embarked since September 2019 on such Artisanal fishing boat through the CNSHB* data collection (Centre National des Sciences Halieutiques de Bousssourah)
 }
 \usage{data("GPSdataset")}
 \format{

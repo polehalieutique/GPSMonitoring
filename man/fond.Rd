@@ -2,10 +2,10 @@
 \alias{fond}
 \docType{data}
 \title{
-%%  sf object with coastline related to the GPS dataset
+sf object with coastline related to the GPS dataset
 }
 \description{
-%%  Fond is a subset of a world shapefile
+ Fond is a subset of a world shapefile
 }
 \usage{data("fond")}
 \format{

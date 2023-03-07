@@ -2,10 +2,10 @@
 \alias{grid}
 \docType{data}
 \title{
-%%  A 0.5x0.5° grid related to the GPSdataset
+ A 0.5x0.5° grid related to the GPSdataset
 }
 \description{
-%%  This sf object was set up using the st_makegrid function
+ This sf object was set up using the st_makegrid function
 }
 \usage{data("grid")}
 \format{
