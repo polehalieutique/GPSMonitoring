@@ -1,10 +1,10 @@
 ---
-title: "GPSMonitoring vignette FR"
+title: "Vignette1"
 author: "Jerome Guitton"
-date: "14/02/2023"
+date: "14/10/2021"
 output:
 vignette: >
-  %\VignetteIndexEntry{Example complet}
+  %\VignetteIndexEntry{Full use example}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -13,7 +13,7 @@ vignette: >
 knitr::opts_chunk$set(echo = TRUE,out.width="100%")
 getwd()
 rm (list=ls())
-library(sf) 
+library(sf)
 library(adehabitatLT)
 library(sqldf)
 library(dplyr)
@@ -66,9 +66,7 @@ Lors du chargement du fichier DEMERSTEM_gps.Rdata, inclus dans le package, une d
 
 ```{r part1}
 
-dataset<-.libPaths()[2]
-load(paste(dataset,'/GPSMonitoring/data/DEMERSTEM_gps.Rdata',sep=''))
-
+data(GPSdataset)
 
 head(GPSdataset) %>%  kable()
 
@@ -99,8 +97,7 @@ ggplot(gps.all)+geom_sf(aes(color=filename),size=0.2)
 Une carte du trait de côte en lien avec les données est aussi mise à la disposition au travers du package (data/fond.Rdata)
 
 ```{r}
-
-load(paste(dataset,'/GPSMonitoring/data/fond.Rdata',sep=''))
+data(fond)
 
 ggplot(gps.all)+geom_sf(data=fond)+geom_sf(aes(color=filename),size=0.2)
 
@@ -171,8 +168,8 @@ Une fois la zone créée, comme tout objet sf, vous pouvez la sauvegarder en sha
 
 
 ```{r part3}
+data(emprise)
 
-load(paste(dataset,"/GPSMonitoring/data/emprise.Rdata",sep=''))
 
 ggplot(emprise)+geom_sf()+
   ggtitle("More precise pol.extent created using create.extent function")
@@ -260,8 +257,7 @@ Once the GPS pings are ready, we have now to predict fishing event. First we hav
 The first set of observed data could be provided using on board observers. The datset of observed fishing event will be composed of start time and end time of fishing event by observe fishermen. 
 
 ```{r}
-
-load(paste(dataset,'/GPSMonitoring/data/Observed_FO.Rdata',sep=''))
+data(Observed_FO)
 
 head(Observed_FO) %>% kable()
 ```
@@ -571,7 +567,7 @@ engin_encours<-'FMCy'
 #Remettre avec un shapefile dans data
 #fond<-st_read(con,query="select st_intersection(st_buffer(geom,0),ST_GeomFromText('POLYGON((-18 13,-13 13,-13 7.94,-18 7.94,-18 13))',4326)) as geom 
 #					   from communes_uni")
-load(paste(dataset,"/GPSMonitoring/data/grid.Rdata",sep=''))
+data(grid)
 ggplot(grid)+geom_sf(color=NA)+geom_sf(data=R2.pred.plus.nb.RF)
 
 

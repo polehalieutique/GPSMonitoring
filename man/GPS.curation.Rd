@@ -16,6 +16,3 @@ GPS.curation(GPS.data, extent = NULL, exclude = NULL)
 \description{
 Generic function to cure gps data
 }
-\examples{
-
-}

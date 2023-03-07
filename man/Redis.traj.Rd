@@ -4,10 +4,10 @@
 \alias{Redis.traj}
 \title{Redis.traj function will redistribute ping along the trajectory with a constant duration between ping with respect of speed and time of initial data.}
 \usage{
-Redis.traj(GPS.data, step_dt)
+Redis.traj(GPS.data, step_dt, silent = NULL)
 }
 \arguments{
-\item{GPS.data}{sf object set up for GPX.load function}
+\item{GPS.data}{sf object loading GPX.load function or similar one}
 
 \item{step}{constant between ping}
 }

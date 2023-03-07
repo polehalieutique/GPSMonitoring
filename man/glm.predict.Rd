@@ -17,5 +17,5 @@ glm.predict(traj, gear.glm, seuil)
 Prediction on fishing activity based on a given model
 }
 \examples{
-#glm.predict(filter(R2,code_engin==engin_encours),gear.glm2,seuil=0.5)
+#glm.predict(filter(R2,code_engin==engin_encours),gear.glm,seuil=0.5)
 }

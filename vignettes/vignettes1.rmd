@@ -68,8 +68,8 @@ When loading the DEMERSTEM_gps.Rdata file, located in the GPSMonitoring package 
 
 ```{r part1}
 
-dataset<-.libPaths()[2]
-#load(paste(dataset,'/GPSMonitoring/data/DEMERSTEM_gps.Rdata',sep=''))
+
+
 
 data(GPSdataset)
 
@@ -99,8 +99,7 @@ ggplot(gps.all)+geom_sf(aes(color=filename),size=0.2)
 A map of the dataset area coastal shape is also include in the package (data/fond.Rdata)
 
 ```{r}
-
-load(paste(dataset,'/GPSMonitoring/data/fond.Rdata',sep=''))
+data(fond)
 
 ggplot(gps.all)+geom_sf(data=fond)+geom_sf(aes(color=filename),size=0.2)
 
@@ -164,8 +163,7 @@ pol.extent<-create.extent(st_convex_hull(st_union(gps.all)))
 
 
 ```{r part3}
-
-load(paste(dataset,"/GPSMonitoring/data/emprise.Rdata",sep=''))
+data(emprise)
 
 ggplot(emprise)+geom_sf()+
   ggtitle("More precise pol.extent created using create.extent function")
@@ -254,8 +252,8 @@ The first set of observed data could be provided using on board observers. The d
 
 ```{r}
 
-load(paste(dataset,'/GPSMonitoring/data/Observed_FO.Rdata',sep=''))
 
+data(Observed_FO)
 head(Observed_FO) %>% kable()
 ```
 
@@ -564,7 +562,8 @@ engin_encours<-'FMCy'
 #Remettre avec un shapefile dans data
 #fond<-st_read(con,query="select st_intersection(st_buffer(geom,0),ST_GeomFromText('POLYGON((-18 13,-13 13,-13 7.94,-18 7.94,-18 13))',4326)) as geom 
 #					   from communes_uni")
-load(paste(dataset,"/GPSMonitoring/data/grid.Rdata",sep=''))
+data(grid)
+
 ggplot(grid)+geom_sf(color=NA)+geom_sf(data=R2.pred.plus.nb.RF)
 
 

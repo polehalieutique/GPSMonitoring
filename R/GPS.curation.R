@@ -3,7 +3,6 @@
 #' @param extent sf object for area of interest definition
 #' @param exclude sf object for exclusion of data (ie port by examples)
 #' @examples
-#'
 #' @export
 GPS.curation<- function (GPS.data,extent=NULL,exclude=NULL){
 
