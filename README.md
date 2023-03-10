@@ -28,6 +28,14 @@ devtools::install_github('polehalieutique/GPSMonitoring')
 
 ## Executing program
 
+The package is composed of a set of functions described in the 2 vignettes (French and english version).
+Several dataset are also included in the package : 
+
+* GPSdataset : About 270 000 position related to several fishing trips of small scale boat in Guinea
+* Observed_FO : Fishing operation tagged during a selection of trips. 
+* emprise, fond, grid some spatial data used to filter or to use as context files when producing ggplot
+
+The two first dataset have been uploaded and described here : https://doi.org/10.15454/VXEZEZ
 
 ## Help
 
