@@ -65,8 +65,8 @@ This project is licensed under the GNU GPL License - see the LICENSE.md file for
 
 ## Acknowledgments
 
-Marc Leopold
-Nicolas Bez
-Faustinato Behivoke
-Modou Thiaw
+Faustinato Behivoke IHSM, Madagascar<BR/>
+Modou Thiaw, CRODT/ISRA Sénégal<BR/>
+Marc Leopold, IRD<BR/>
+Nicolas Bez; IRD<BR/>
 
