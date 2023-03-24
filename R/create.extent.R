@@ -1,6 +1,7 @@
 #' Tool to draw more complex extent using leaflet
 #' @param traj A subset of global trajectory dataset identified by one no_trajet
 #' @examples
+#' \dontrun{
 #' library(GPSMonitoring)
 #' library(dplyr)
 #' library(sf)
@@ -14,6 +15,7 @@
 #'  dplyr::rename(time=date_heure) %>%
 #'  st_as_sf(coords = c("longitude", "latitude"), crs = 4326,remove=FALSE)->gps.all
 #' emprise<-create.extent(st_convex_hull(st_union(gps.all)))
+#' }
 #' @export
 
 #

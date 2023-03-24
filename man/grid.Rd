@@ -26,6 +26,8 @@
 %%  ~~ possibly secondary sources and usages ~~
 }
 \examples{
+library(ggplot2)
+library(sf)
 data(grid)
 ggplot(grid)+ geom_sf()
 }

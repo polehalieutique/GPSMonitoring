@@ -13,6 +13,7 @@ create.extent(gps.extent)
 Tool to draw more complex extent using leaflet
 }
 \examples{
+\dontrun{
 library(GPSMonitoring)
 library(dplyr)
 library(sf)
@@ -26,4 +27,5 @@ arrange (filename) \%>\% dplyr::distinct(code_village,code_engin,code_pecheur,fi
  dplyr::rename(time=date_heure) \%>\%
  st_as_sf(coords = c("longitude", "latitude"), crs = 4326,remove=FALSE)->gps.all
 emprise<-create.extent(st_convex_hull(st_union(gps.all)))
+}
 }

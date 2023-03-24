@@ -26,6 +26,8 @@ This sf object was set up using the create.extent function and is a polygon wher
 %%  ~~ possibly secondary sources and usages ~~
 }
 \examples{
+library(ggplot2)
+library(sf)
 data(emprise)
 ggplot(emprise)+geom_sf()
 }

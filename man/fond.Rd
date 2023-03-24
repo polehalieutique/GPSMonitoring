@@ -24,6 +24,8 @@ sf object with coastline related to the GPS dataset
 %%
 }
 \examples{
+library(ggplot2)
+library(sf)
 data(fond)
 ggplot(fond)+ geom_sf()
 
