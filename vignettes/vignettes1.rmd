@@ -396,7 +396,7 @@ We will use the same function silicoTraj in two different modes sequencially :
 
 
 ```{r eval=FALSE}
-
+data(R2)
 R2 %>% st_drop_geometry() %>% dplyr::filter(code_engin==engin_encours) %>% dplyr::group_by(no_trajet) %>% 
   dplyr::summarize(nb_positions=n()) %>% dplyr::arrange(desc(nb_positions)) %>% dplyr::top_n(5) -> traj_to_observe
 
@@ -405,12 +405,12 @@ R2 %>% filter(no_trajet %in% traj_to_observe$no_trajet) %>%
 
 #I create the new column and set values to Unknown 
 R2$activity_plus<-'UK'
+i<-25
 
 for (i in traj_to_observe$no_trajet)
 {
   R2<-track_replace(R2,silicoTraj(filter(R2,no_trajet==i),mode='speed'))
 }
-
 
 for (i in traj_to_observe$no_trajet)
 {
@@ -418,10 +418,13 @@ for (i in traj_to_observe$no_trajet)
 }
 
 ```
+For the vignette, we reload silicoTraj results (R2)
+```{r}
 
-```{r echo=FALSE}
-
-load("../../Vignette_LI393.RData")
+data(R2)
+head(R2)
+engin_encours<-'FMCy'
+traj_to_observe<-R2 %>% dplyr::filter(activity_plus=='active') %>% distinct(no_trajet)
 
 ```
 

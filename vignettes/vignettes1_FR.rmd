@@ -426,7 +426,8 @@ for (i in traj_to_observe$no_trajet)
 
 ```{r echo=FALSE}
 
-load("../../Vignette_LI393.RData")
+data(R2)
+traj_to_observe<-R2 %>% dplyr::filter(activity_plus=='active') %>% distinct(no_trajet)
 
 ```
 

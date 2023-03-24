@@ -1,7 +1,19 @@
 #' Tool to draw more complex extent using leaflet
 #' @param traj A subset of global trajectory dataset identified by one no_trajet
 #' @examples
-#' #emprise<-create.extent(st_convex_hull(st_union(gps.all)))
+#' library(GPSMonitoring)
+#' library(dplyr)
+#' library(sf)
+#' data(GPSdataset)
+#'
+#' GPSdataset %>% mutate(filename=paste(code_village,code_engin,code_pecheur,'.gpx',sep='_')) %>%
+#' arrange (filename) %>% dplyr::distinct(code_village,code_engin,code_pecheur,filename) %>%
+#'  dplyr::mutate(track_fid=row_number(),track_seg_id=track_fid) %>%
+#'  inner_join(GPSdataset) %>%
+#'  group_by(filename) %>% arrange (filename,date_heure) %>% dplyr::mutate(track_seg_point_id = row_number()) %>%
+#'  dplyr::rename(time=date_heure) %>%
+#'  st_as_sf(coords = c("longitude", "latitude"), crs = 4326,remove=FALSE)->gps.all
+#' emprise<-create.extent(st_convex_hull(st_union(gps.all)))
 #' @export
 
 #
