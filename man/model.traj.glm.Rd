@@ -16,3 +16,6 @@ model.traj.glm(traj, observation = NULL, form = NULL)
 \description{
 Tool to draw more complex extent using
 }
+\examples{
+#gear.glm<-model.traj.glm(filter(R2,code_engin==engin_encours),observation='activity')
+}

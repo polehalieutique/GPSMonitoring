@@ -2,13 +2,10 @@
 #' @param traj dataset of trajectories
 #' @param r distance to use to calculate the number of close Gps position to each track position
 #' @examples
-#
-# R2test_retour<-all.add.nb.point <-function (R2,r=2000)
-
-
+#' data(R2)
+#' R2test_retour<-all.add.nb.point <-function (R2,r=2000)
 #' @export
 #'
-
 all.add.nb.point <-function (traj,r=2000,temp_windows=10)
 {
   library(parallel)

@@ -14,3 +14,7 @@
 \description{
 all.add.nb.point will proceed to add.nb.point to all subtrajectory of a global traj dataset
 }
+\examples{
+data(R2)
+R2test_retour<-all.add.nb.point <-function (R2,r=2000)
+}

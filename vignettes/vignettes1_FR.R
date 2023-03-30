@@ -1,4 +1,4 @@
-## ----setup, include=FALSE---------------------------------------------------------------------------------------------------
+## ----setup, include=FALSE-----------------------------------------------------
 knitr::opts_chunk$set(echo = TRUE,out.width="100%")
 getwd()
 rm (list=ls())
@@ -22,7 +22,7 @@ library(randomForest)
 library(caret)
 
 
-## ----part1------------------------------------------------------------------------------------------------------------------
+## ----part1--------------------------------------------------------------------
 
 data(GPSdataset)
 
@@ -30,7 +30,7 @@ head(GPSdataset) %>%  kable()
 
 GPSdataset<-GPSdataset %>% filter(date_heure<"2019-09-30 20:20:53 CEST")
 
-## ---------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 
 GPSdataset %>% mutate(filename=paste(code_village,code_engin,code_pecheur,'.gpx',sep='_')) %>% 
 arrange (filename) %>% dplyr::distinct(code_village,code_engin,code_pecheur,filename) %>% 
@@ -45,13 +45,13 @@ ggplot(gps.all)+geom_sf(aes(color=filename),size=0.2)
 
 
 
-## ---------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 data(fond)
 
 ggplot(gps.all)+geom_sf(data=fond)+geom_sf(aes(color=filename),size=0.2)
 
 
-## ----part2------------------------------------------------------------------------------------------------------------------
+## ----part2--------------------------------------------------------------------
 
 
 emprise<-matrix(c(-17,11,-14,11,-14,9,-15,9,-17,11),ncol=2, byrow=TRUE)
@@ -78,13 +78,13 @@ ggarrange(g1,g2)
 
 
 
-## ----eval=FALSE-------------------------------------------------------------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  
 #  pol.extent<-create.extent(st_convex_hull(st_union(gps.all)))
 #  
 #  
 
-## ----part3------------------------------------------------------------------------------------------------------------------
+## ----part3--------------------------------------------------------------------
 data(emprise)
 
 
@@ -104,7 +104,7 @@ g2<-ggplot(gps.all.cur)+geom_sf()+geom_sf(data=exclude,fill=rgb(0.8,0.11,0.1,0.5
 ggarrange(g1,g2)
 
 
-## ----part4------------------------------------------------------------------------------------------------------------------
+## ----part4--------------------------------------------------------------------
 limit<-600*120 #2 hours between two point and we consider a new traject
  #limit<-240
 head(gps.all.cur)
@@ -125,7 +125,7 @@ head(gps.all.cur_traj)
 
 
 
-## ----part5,echo=FALSE,message=FALSE,warning=FALSE---------------------------------------------------------------------------
+## ----part5,echo=FALSE,message=FALSE,warning=FALSE-----------------------------
 ggplot(filter(gps.all.cur_traj,duree<350))+geom_histogram(aes(x=duree))
 
 
@@ -136,7 +136,7 @@ gpstmp<-filter(gps.all.cur_traj,track_fid==1)
 step_dt=300
 R.gps.all.cur_traj<-Redis.traj(GPS.data=st_drop_geometry(gps.all.cur_traj),step=step_dt,silent=TRUE)
 
-## ----part5.1----------------------------------------------------------------------------------------------------------------
+## ----part5.1------------------------------------------------------------------
 ggplot(filter(R.gps.all.cur_traj,duree<350))+geom_histogram(aes(x=duree))
 
 
@@ -150,12 +150,12 @@ R.gps.all.cur_traj <- st_as_sf(x = R.gps.all.cur_traj,
 ggplot(R.gps.all.cur_traj)+geom_sf(aes(color=no_trajet))+ggtitle(paste("Tracks redistribute in a ",step_dt," period"))
 
 
-## ---------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 data(Observed_FO)
 
 head(Observed_FO) %>% kable()
 
-## ---------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 R.gps.all.cur_traj %>% tidyr::separate(filename,c('code_village','code_engin','code_pecheur'),remove=FALSE,sep='_') %>% 
   mutate(code_pecheur=as.numeric(code_pecheur)) %>%  mutate(longitude = sf::st_coordinates(.)[,1],
                                              latitude = sf::st_coordinates(.)[,2])->R2
@@ -186,7 +186,7 @@ ggplot(filter(R2,no_trajet %in% liste_trajet_avec_obs$no_trajet))+geom_sf(aes(co
 
 
 
-## ----part6------------------------------------------------------------------------------------------------------------------
+## ----part6--------------------------------------------------------------------
 
 liste_trajet_avec_obs<-R2 %>% st_drop_geometry()%>% filter(activity=='active')%>% dplyr::distinct(no_trajet)     
 
@@ -223,7 +223,7 @@ R2_avec_obs %>% filter(code_engin==engin_encours) %>% ggplot()+geom_line(aes(x=d
 
 
 
-## ---------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 
 observation<-'activity'
 
@@ -236,7 +236,7 @@ summary(gear.glm)
 plot(gear.glm)
 
 
-## ----part7------------------------------------------------------------------------------------------------------------------
+## ----part7--------------------------------------------------------------------
 
 
 R2.pred<-glm.predict(filter(R2,code_engin==engin_encours),gear.glm,seuil=0.5)
@@ -248,7 +248,7 @@ p2<-ggplot(filter(R2_avec_obs,code_engin==engin_encours))+geom_sf(aes(color=acti
 ggarrange(p1,p2,ncol=1)
 
 
-## ----eval=FALSE-------------------------------------------------------------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  
 #  R2 %>% st_drop_geometry() %>% dplyr::filter(code_engin==engin_encours) %>% dplyr::group_by(no_trajet) %>%
 #    dplyr::summarize(nb_positions=n()) %>% dplyr::arrange(desc(nb_positions)) %>% dplyr::top_n(5) -> traj_to_observe
@@ -271,12 +271,13 @@ ggarrange(p1,p2,ncol=1)
 #  }
 #  
 
-## ----echo=FALSE-------------------------------------------------------------------------------------------------------------
+## ----echo=FALSE---------------------------------------------------------------
 
-load("../../Vignette_LI393.RData")
+data(R2)
+traj_to_observe<-R2 %>% dplyr::filter(activity_plus=='active') %>% distinct(no_trajet)
 
 
-## ---------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 
 gear.glm.plus<-model.traj.glm(filter(R2,code_engin==engin_encours),observation="activity_plus",form= "dist+abs.angle")
 
@@ -293,7 +294,7 @@ p2<-ggplot(filter(R2.pred.plus,code_engin==engin_encours))+geom_sf(aes(color=act
 ggarrange(p1,p2,ncol=1)
 
 
-## ----part8------------------------------------------------------------------------------------------------------------------
+## ----part8--------------------------------------------------------------------
 
 R2test_retour<-all.add.nb.point(R2.pred.plus,r=2000,temp_windows=20)
 
@@ -304,7 +305,7 @@ ggplot(filter(R2test_retour,no_trajet==traj_to_observe$no_trajet[1]))+geom_point
 
 
 
-## ---------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 
 gear.glm.plus.nb<-model.traj.glm(filter(R2test_retour,code_engin==engin_encours),observation="activity_plus",form= "dist+abs.angle+circle2000")
 
@@ -324,7 +325,7 @@ ggarrange(p1,p2,ncol=1)
 
 
 
-## ----partRF-----------------------------------------------------------------------------------------------------------------
+## ----partRF-------------------------------------------------------------------
 
 #To select some 
 form <-"dist+abs.angle+circle2000"
@@ -343,7 +344,7 @@ ggplot(R2.pred.plus.nb.RF)+geom_sf(aes(color=predict.glm),lwd=0.1)+geom_sf(data=
 
 
 
-## ---------------------------------------------------------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 
 qual.RF<-quality.ind(R2.pred.plus.nb.RF,col.activity='activity_plus',col.predict='predict.RF')
 
@@ -357,7 +358,7 @@ rbind(glm.ind,RF.ind) %>%
   ggtitle("Quality comparaison between two last models GLM/RF")
 
 
-## ----partgrid---------------------------------------------------------------------------------------------------------------
+## ----partgrid-----------------------------------------------------------------
 
 
 engin_encours<-'FMCy'
