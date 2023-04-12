@@ -16,7 +16,6 @@ silicoTraj<-function(traj,mode='map') {
   library(shiny)
   library(leaflet)
 
-    #load('/home/jerome/PESCAOS/Rpackages/GPSMonitoring/app/Traj_obs.Rdata')
 
   inputinit<-st_drop_geometry(traj)
   inputtmp<-inputinit

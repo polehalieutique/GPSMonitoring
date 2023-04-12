@@ -1,9 +1,15 @@
-#' Calculate and print sensitivity, accuracy and
-#' @param proj.tarj Set of trajectory with predict.glm values
+#' Calculate and print sensitivity, accuracy and selectivity quality indicators
+#' @param proj.traj Set of trajectory with predict.glm values
 #' @param col.activity Column name for observed fishing event
 #' @param col.predict Column name for predict values
 #' @examples
-#' #GPX.load(gpx_rep='data/gpx')
+#' data(R2)
+#' library(ranger)
+#' library(tidyr)
+#' engin_encours<-"FMCy"
+#' gear.RF<-model.traj.RF(filter(R2,code_engin==engin_encours),observation='activity','dist')
+#' R2.pred<-RF.predict(filter(R2,code_engin==engin_encours),gear.RF)
+#' quality.ind(R2.pred,col.activity='activity',col.predict='predict.RF')
 #' @export
 
 

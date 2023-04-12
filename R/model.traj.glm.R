@@ -3,7 +3,10 @@
 #' @param obervation  The name of the column used to store observed activity
 #' @param formula Default formula is observation~dist but users can specified his on model
 #' @examples
-#' #gear.glm<-model.traj.glm(filter(R2,code_engin==engin_encours),observation='activity')
+#' data(R2)
+#' engin_encours<-"FMCy"
+#' gear.glm<-model.traj.glm(filter(R2,code_engin==engin_encours),observation='activity')
+#' plot(gear.glm)
 #' @export
 
 

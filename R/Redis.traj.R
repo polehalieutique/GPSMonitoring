@@ -2,7 +2,22 @@
 #' @param GPS.data sf object loading GPX.load function or similar one
 #' @param step constant between ping
 #' @examples
-#'
+#' data(GPSdataset)
+#' library(sqldf)
+#' library(dplyr)
+#' library(adehabitatLT)
+#' library(sf)
+#' limit<-600*120
+#' step_dt=300
+#' GPSdataset %>% mutate(filename=paste(code_village,code_engin,code_pecheur,'.gpx',sep='_')) %>%
+#' arrange (filename) %>% dplyr::distinct(code_village,code_engin,code_pecheur,filename) %>%
+#'  dplyr::mutate(track_fid=row_number(),track_seg_id=track_fid) %>%
+#'  inner_join(GPSdataset) %>%
+#'  group_by(filename) %>% arrange (filename,date_heure) %>% dplyr::mutate(track_seg_point_id = row_number()) %>%
+#'  dplyr::rename(time=date_heure) %>%
+#'  st_as_sf(coords = c("longitude", "latitude"), crs = 4326,remove=FALSE)->gps.all
+#'  gps.all.cur_traj<-GPS.add_traj_number(gps.all,limit)%>% mutate(x = longitude,y = latitude)
+#'  R.gps.all.cur_traj<-Redis.traj(GPS.data=st_drop_geometry(gps.all.cur_traj),step=step_dt,silent=TRUE)
 #' @export
 #'
 #'

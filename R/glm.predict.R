@@ -3,7 +3,13 @@
 #' @param gear.glm The glm model used for the prediction
 #' @param seuil Threshold used to predict fishing activity
 #' @examples
-#' #glm.predict(filter(R2,code_engin==engin_encours),gear.glm,seuil=0.5)
+#' data(R2)
+#' engin_encours<-"FMCy"
+#' gear.glm<-model.traj.glm(filter(R2,code_engin==engin_encours),observation='activity')
+#' R2.pred<-glm.predict(filter(R2,code_engin==engin_encours),gear.glm,seuil=0.5)
+#' ggplot(R2.pred)+geom_sf(size=0.1,col='red')+ggtitle("GPS ping without prediction")
+#' ggplot(R2.pred)+geom_sf(size=0.1,aes(col=activity_plus))+ggtitle("GPS ping with GLM prediction")
+#'
 #' @export
 #'
 
