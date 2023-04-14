@@ -3,6 +3,8 @@
 #' @examples
 #' \dontrun{
 #' data(R2)
+#'
+#' R2$activity_plus<-'UK'
 #' new_trajet29<-silicoTraj(dplyr::filter(R2,no_trajet==29),mode='speed')
 #'
 #' new_trajet29<-silicoTraj(dplyr::filter(R2,no_trajet==29),mode='map')
