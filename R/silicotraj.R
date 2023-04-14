@@ -1,7 +1,12 @@
 #' Propose a user interface to identified portion of the tracks that could be active one.
 #' @param traj A subset of global trajectory dataset identified by one no_trajet
 #' @examples
-#' #new_trajet29<-silicoTraj(filter(R2,no_trajet==29))
+#' \dontrun{
+#' data(R2)
+#' new_trajet29<-silicoTraj(dplyr::filter(R2,no_trajet==29),mode='speed')
+#'
+#' new_trajet29<-silicoTraj(dplyr::filter(R2,no_trajet==29),mode='map')
+#' }
 #' @export
 #'
 
