@@ -21,7 +21,8 @@ Imports:
     ggpubr,
     caret,
     ranger,
-    randomForest
+    randomForest,
+    geojsonsf
 Suggests: 
     DBI,
     knitr,
