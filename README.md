@@ -2,7 +2,7 @@
 
 # GPSMonitoring
 
-This package was initially developped during DEMERSTEM EU project. It aims to develop tools for an easier use of GPS data for fisheries monitoring. The purpose was to have knwowledge on where the caught of fish occurs for a better stock managment and finally a more sustainable fisheries. The purpose was definitely not for control and surveillance.
+This package was initially developped during DEMERSTEM EU project. It aims to develop tools for an easier use of GPS data for fisheries monitoring. The purpose was to have knwowledge on where the caught of fish occurs for a better stock managment and finally a more sustainable fisheries. The purpose of this package was definitely not for control and surveillance.
 
 ## DEMERSTEM project
 
