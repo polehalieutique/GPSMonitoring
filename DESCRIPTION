@@ -1,10 +1,10 @@
 Package: GPSMonitoring
 Type: Package
 Title: This package aims to falicitate GPS analysis for small scale fisheries monitoring
-Version: 0.1.0
+Version: 1.0.0
 Author: Jérôme Guitton et Mohamed Soumah, ...
 Maintainer: Jérôme Guitton <jerome.guitton@agrocampus-ouest.fr>
-Description: GPS are now included in the list of tools widely available for small scale fisheries monitoring. This package will provide a set of tools that has been  developped under several projects as DEMERSTEM. These tools could be splitted in two large categories : tools for curation and tools for data analysis.
+Description: GPS loggers are now included in the list of tools widely available for small scale fisheries monitoring. This package will provide a set of tools that has been  developped under several projects as the EU DEMERSTEM one. These tools could be splitted in two large categories : tools for curation and tools for data analysis.
 Imports: 
     ggplot2,
     parallel,
