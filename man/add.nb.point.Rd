@@ -10,7 +10,9 @@ add.nb.point(traj, r = 2000, temp_windows = 10)
 \arguments{
 \item{traj}{subset of trajectory model reduce to one traject}
 
-\item{r}{distance to use to calculate the number of close Gps position to each track position}
+\item{r}{distance to use to calculate the number of close Gps position to each track position. Default 2000}
+
+\item{temp_windows}{number of following ping of the trajectory to take into account for the calculation. Default 10}
 }
 \description{
 add.nb.point will add a new column with the number of ping from the same sub trajectory contains in a circle of r radius
@@ -18,4 +20,8 @@ and in a temporal windows of temp_windows position before and temp_windows posit
 }
 \examples{
 library(parallel)
+cl<-makeCluster(6)
+data(R2)
+R2test_retour<-R2 \%>\% inner_join(do.call(rbind,parLapply(cl,split(R2, R2$no_trajet),add.nb.point,r=2500)))
+stopCluster(cl)
 }

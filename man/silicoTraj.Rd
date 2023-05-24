@@ -13,5 +13,12 @@ silicoTraj(traj, mode = "map")
 Propose a user interface to identified portion of the tracks that could be active one.
 }
 \examples{
-#new_trajet29<-silicoTraj(filter(R2,no_trajet==29))
+\dontrun{
+data(R2)
+
+R2$activity_plus<-'UK'
+new_trajet29<-silicoTraj(dplyr::filter(R2,no_trajet==29),mode='speed')
+
+new_trajet29<-silicoTraj(dplyr::filter(R2,no_trajet==29),mode='map')
+}
 }

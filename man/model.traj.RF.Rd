@@ -17,5 +17,9 @@ model.traj.RF(traj, observation = NULL, form = NULL)
 Tool to draw more complex extent using
 }
 \examples{
-#gear.glm<-model.traj.RF(filter(R2,code_engin==engin_encours),observation='activity','dist')
+data(R2)
+library(ranger)
+engin_encours<-"FMCy"
+gear.RF<-model.traj.RF(filter(R2,code_engin==engin_encours),observation='activity','dist')
+gear.RF
 }

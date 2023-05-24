@@ -172,13 +172,15 @@ pol.extent<-emprise
 
 gps.all.cur<-GPS.curation(gps.all,extent=pol.extent,exclude=exclude)
 
-g1<-ggplot(gps.all)+geom_sf()+geom_sf(data=exclude,fill=rgb(0.8,0.11,0.1,0.5))+
+g1<-ggplot(gps.all)+geom_sf(size=0.1)+geom_sf(data=exclude,fill=rgb(0.8,0.11,0.1,0.5))+
   geom_sf(data=pol.extent,fill=rgb(0.1,0.8,0.1,0.5))
 
-g2<-ggplot(gps.all.cur)+geom_sf()+geom_sf(data=exclude,fill=rgb(0.8,0.11,0.1,0.5))+
+g2<-ggplot(gps.all.cur)+geom_sf(size=0.1)+geom_sf(data=exclude,fill=rgb(0.8,0.11,0.1,0.5))+
   geom_sf(data=pol.extent,fill=rgb(0.1,0.8,0.1,0.5))
 
 ggarrange(g1,g2)
+
+
 
 ```
 
@@ -217,7 +219,7 @@ head(gps.all.cur_traj)
 As we can see here, the ping frequency is not constant. So we decide to recalibrate all the trajectory using a constant frequency of dt=300 s (5 minutes). The package ADEhabitat is used.
 
 
-```{r part5,echo=FALSE,message=FALSE,warning=FALSE}
+```{r part5}
 ggplot(filter(gps.all.cur_traj,duree<350))+geom_histogram(aes(x=duree))
 
 
@@ -264,7 +266,7 @@ R.gps.all.cur_traj %>% tidyr::separate(filename,c('code_village','code_engin','c
   mutate(code_pecheur=as.numeric(code_pecheur)) %>%  mutate(longitude = sf::st_coordinates(.)[,1],
                                              latitude = sf::st_coordinates(.)[,2])->R2
 #add id number for each position of a traject
-R2$id<-(R2 %>% group_by(no_trajet) %>% mutate(id=row_number()) %>% select (id))$id
+R2$id<-(R2 %>% group_by(no_trajet) %>% mutate(id=row_number()) %>% dplyr::select (id))$id
 
 R2$date<-as.POSIXct(R2$date)
 R2 %>% mutate(obs=as.integer(1),activity='UK')->R2
@@ -396,6 +398,7 @@ We will use the same function silicoTraj in two different modes sequencially :
 
 
 ```{r eval=FALSE}
+
 data(R2)
 R2 %>% st_drop_geometry() %>% dplyr::filter(code_engin==engin_encours) %>% dplyr::group_by(no_trajet) %>% 
   dplyr::summarize(nb_positions=n()) %>% dplyr::arrange(desc(nb_positions)) %>% dplyr::top_n(5) -> traj_to_observe
@@ -447,6 +450,7 @@ p1<-ggplot(R2.pred.plus)+geom_sf(aes(color=as.factor(predict.glm)),alpha=0.45,lw
 p2<-ggplot(filter(R2.pred.plus,code_engin==engin_encours))+geom_sf(aes(color=activity_plus),alpha=0.45,lwd=1)+
     scale_fill_viridis_c(option = "plasma", trans = "sqrt")
 ggarrange(p1,p2,ncol=1)
+
 
 ```
 

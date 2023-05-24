@@ -2,20 +2,26 @@
 % Please edit documentation in R/quality.ind.R
 \name{quality.ind}
 \alias{quality.ind}
-\title{Calculate and print sensitivity, accuracy and}
+\title{Calculate and print sensitivity, accuracy and selectivity quality indicators}
 \usage{
 quality.ind(proj.traj, col.activity = NULL, col.predict = NULL)
 }
 \arguments{
+\item{proj.traj}{Set of trajectory with predict.glm values}
+
 \item{col.activity}{Column name for observed fishing event}
 
 \item{col.predict}{Column name for predict values}
-
-\item{proj.tarj}{Set of trajectory with predict.glm values}
 }
 \description{
-Calculate and print sensitivity, accuracy and
+Calculate and print sensitivity, accuracy and selectivity quality indicators
 }
 \examples{
-#GPX.load(gpx_rep='data/gpx')
+data(R2)
+library(ranger)
+library(tidyr)
+engin_encours<-"FMCy"
+gear.RF<-model.traj.RF(filter(R2,code_engin==engin_encours),observation='activity','dist')
+R2.pred<-RF.predict(filter(R2,code_engin==engin_encours),gear.RF)
+quality.ind(R2.pred,col.activity='activity',col.predict='predict.RF')
 }

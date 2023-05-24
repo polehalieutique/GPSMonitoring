@@ -9,7 +9,7 @@ track_replace(trajInit, new_track)
 \arguments{
 \item{trajInit}{A big sf objection with all the track id used}
 
-\item{new_track}{A subset of trajInit modified and to be replace instead of the old Subset}
+\item{new_track}{A subset of trajInit modified and to insert into the dataset instead of the old one}
 }
 \description{
 Replace a given track id by a new one. Espacially used when adding In silico observation to a given set of trajectory.

@@ -17,5 +17,8 @@ model.traj.glm(traj, observation = NULL, form = NULL)
 Tool to draw more complex extent using
 }
 \examples{
-#gear.glm<-model.traj.glm(filter(R2,code_engin==engin_encours),observation='activity')
+data(R2)
+engin_encours<-"FMCy"
+gear.glm<-model.traj.glm(filter(R2,code_engin==engin_encours),observation='activity')
+plot(gear.glm)
 }

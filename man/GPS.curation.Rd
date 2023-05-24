@@ -16,3 +16,17 @@ GPS.curation(GPS.data, extent = NULL, exclude = NULL)
 \description{
 Generic function to cure gps data
 }
+\examples{
+library(ggpubr)
+data(GPSdataset)
+data(emprise)
+ports<-data.frame(code=c('KPN'),long=c(-14.61),lat=c(10.6789))
+ports.sf<- st_as_sf(ports,coords=c("long","lat"),crs=4326)
+exclude<-st_as_sf(st_union(st_buffer(ports.sf,1000)))
+gps.all.cur<-GPS.curation(gps.all,extent=emprise,exclude=exclude)
+g1<-ggplot(gps.all)+geom_sf()+geom_sf(data=exclude,fill=rgb(0.8,0.11,0.1,0.5))+
+geom_sf(data=emprise,fill=rgb(0.1,0.8,0.1,0.5))
+g2<-ggplot(gps.all.cur)+geom_sf()+geom_sf(data=exclude,fill=rgb(0.8,0.11,0.1,0.5))+
+ geom_sf(data=emprise,fill=rgb(0.1,0.8,0.1,0.5))
+ggarrange(g1,g2)
+}
