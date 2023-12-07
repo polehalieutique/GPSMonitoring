@@ -31,7 +31,7 @@ proj.traj %>% st_drop_geometry() %>% dplyr::filter(no_trajet %in% no_trajet_with
                 fn=case_when((!!as.symbol(col.activity)=='UK' & !!as.symbol(col.predict)=='UK')~1,TRUE~0)
                 ) %>%
   dplyr::select(fp,tp,tn,fn) %>% dplyr::summarize(fp=sum(fp),tp=sum(tp),tn=sum(tn),fn=sum(fn)) %>%
-  dplyr::mutate(indicator='quality',accuracy=(fn+tp)/(fn+tp+fn+fp),sensitivity=tp/(tp+fn),specificity=tn/(tn+fn))->qual.ind
+  dplyr::mutate(indicator='quality',accuracy=(tn+tp)/(fn+tp+tn+fp),sensitivity=tp/(tp+fn),specificity=tn/(tn+fp))->qual.ind
 
 
 qual.ind %>% dplyr::select(indicator,accuracy,sensitivity,specificity) %>% pivot_longer(!indicator,names_to='Ind_name') %>%
