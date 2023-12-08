@@ -12,10 +12,13 @@
 #' @export
 
 
-RF.predict <- function(traj,mod.RF)
+RF.predict <- function(traj,mod.RF,remove.isolated=NULL,state1=NULL, state2=NULL, lim1=NULL,lim2=NULL)
 {
 
-
+  if (is.null(lim1)) {lim1<-5}
+  if (is.null(lim2)) {lim1<-10}
+  if (is.null(state1)) {state1<-'active'}
+  if (is.null(state2)) {state1<-'UK'}
   #Liste des variables explicatives a filter sur les valeurs non nulles
   colX<-mod.RF$forest$independent.variable.names
 
@@ -26,7 +29,14 @@ RF.predict <- function(traj,mod.RF)
 
   predict_data   <- predict(mod.RF, data = dta)
 
-  dta %>% dplyr::mutate(predict.RF = predict_data$predictions)  -> res_RF
+
+
+  if (remove.isolated) {
+    dta %>% dplyr::mutate(predict.RF =  remove_isolated(predict_data$predictions, state = state1, replace = state2, lim = lim1))->res_RF1
+
+    res_RF1 %>% dplyr::mutate(predict.RF =  remove_isolated(res_RF1$predict.RF, state = state2, replace = state1, lim = lim2))-> res_RF
+    }
+    else {dta %>% dplyr::mutate(predict.RF = predict_data$predictions)  -> res_RF}
 
   result<-traj %>% inner_join(res_RF)
 
