@@ -27,8 +27,8 @@ no_trajet_with_obs<-proj.traj %>% dplyr::filter(!!as.symbol(col.activity)=='acti
 proj.traj %>% st_drop_geometry() %>% dplyr::filter(no_trajet %in% no_trajet_with_obs$no_trajet) %>%
   dplyr::mutate(fp=case_when((!!as.symbol(col.activity)=='UK' & !!as.symbol(col.predict)=='active')~1,TRUE~0),
                 tp=case_when((!!as.symbol(col.activity)=='active' & !!as.symbol(col.predict)=='active')~1,TRUE~0),
-                tn=case_when((!!as.symbol(col.activity)=='active' & !!as.symbol(col.predict)=='UK')~1,TRUE~0),
-                fn=case_when((!!as.symbol(col.activity)=='UK' & !!as.symbol(col.predict)=='UK')~1,TRUE~0)
+                tn=case_when((!!as.symbol(col.activity)=='UK' & !!as.symbol(col.predict)=='UK')~1,TRUE~0),
+                fn=case_when((!!as.symbol(col.activity)=='active' & !!as.symbol(col.predict)=='UK')~1,TRUE~0)
                 ) %>%
   dplyr::select(fp,tp,tn,fn) %>% dplyr::summarize(fp=sum(fp),tp=sum(tp),tn=sum(tn),fn=sum(fn)) %>%
   dplyr::mutate(indicator='quality',accuracy=(tn+tp)/(fn+tp+tn+fp),sensitivity=tp/(tp+fn),specificity=tn/(tn+fp))->qual.ind
