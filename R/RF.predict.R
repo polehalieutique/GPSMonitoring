@@ -19,6 +19,7 @@ RF.predict <- function(traj,mod.RF,remove.isolated=NULL,state1=NULL, state2=NULL
   if (is.null(lim2)) {lim1<-10}
   if (is.null(state1)) {state1<-'active'}
   if (is.null(state2)) {state1<-'UK'}
+  if (is.null(remove.isolated)) {remove.isolated<-FALSE}
   #Liste des variables explicatives a filter sur les valeurs non nulles
   colX<-mod.RF$forest$independent.variable.names
 
